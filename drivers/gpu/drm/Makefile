@@ -66,7 +66,6 @@ drm-y := \
 	drm_modeset_lock.o \
 	drm_plane.o \
 	drm_prime.o \
-	drm_print.o \
 	drm_property.o \
 	drm_syncobj.o \
 	drm_sysfs.o \
