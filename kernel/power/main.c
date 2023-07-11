@@ -141,9 +141,13 @@ static ssize_t mem_sleep_show(struct kobject *kobj, struct kobj_attribute *attr,
 {
 	char *s = buf;
 	suspend_state_t i;
+	struct cpuidle_device *dev = cpuidle_get_device();
+	struct cpuidle_driver *drv = cpuidle_get_cpu_driver(dev);
 
 	for (i = PM_SUSPEND_MIN; i < PM_SUSPEND_MAX; i++) {
 		if (i >= PM_SUSPEND_MEM && cxl_mem_active())
+			continue;
+		if (i == PM_SUSPEND_TO_IDLE && cpuidle_not_available(drv, dev))
 			continue;
 		if (mem_sleep_states[i]) {
 			const char *label = mem_sleep_states[i];
@@ -186,6 +190,8 @@ static ssize_t mem_sleep_store(struct kobject *kobj, struct kobj_attribute *attr
 {
 	suspend_state_t state;
 	int error;
+	struct cpuidle_device *dev = cpuidle_get_device();
+	struct cpuidle_driver *drv = cpuidle_get_cpu_driver(dev);
 
 	error = pm_autosleep_lock();
 	if (error)
@@ -197,11 +203,15 @@ static ssize_t mem_sleep_store(struct kobject *kobj, struct kobj_attribute *attr
 	}
 
 	state = decode_suspend_state(buf, n);
-	if (state < PM_SUSPEND_MAX && state > PM_SUSPEND_ON)
+	if (state == PM_SUSPEND_TO_IDLE && cpuidle_not_available(drv, dev))
+		goto err;
+	if (state < PM_SUSPEND_MAX && state > PM_SUSPEND_ON) {
 		mem_sleep_current = state;
-	else
-		error = -EINVAL;
+		goto out;
+	}
 
+ err:
+	error = -EINVAL;
  out:
 	pm_autosleep_unlock();
 	return error ? error : n;
