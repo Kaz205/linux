@@ -1919,7 +1919,7 @@ extern struct static_key_false sched_cluster_active;
 
 static __always_inline bool sched_asym_cpucap_active(void)
 {
-	return static_branch_unlikely(&sched_asym_cpucapacity);
+	return false;
 }
 
 struct sched_group_capacity {
