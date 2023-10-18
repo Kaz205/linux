@@ -14,7 +14,7 @@
 #include <linux/mutex.h>
 
 #include "it930x.h"
-#include "px4_card_ioctl.h"
+#include "../include/px4_card_ioctl.h"
 
 struct px4_card;
 struct usb_device;
