@@ -8,6 +8,7 @@
 obj-y += b2c2/
 obj-y += dvb-usb/
 obj-y += dvb-usb-v2/
+obj-y += px4_drv/driver/
 obj-y += s2255/
 obj-y += siano/
 obj-y += ttusb-budget/
