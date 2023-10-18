@@ -16,7 +16,7 @@
 #include <linux/cdev.h>
 #include <linux/device.h>
 
-#include "ptx_ioctl.h"
+#include "../include/ptx_ioctl.h"
 #include "ringbuffer.h"
 
 struct ptx_tune_params {
