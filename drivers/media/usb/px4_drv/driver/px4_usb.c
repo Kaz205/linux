@@ -134,7 +134,7 @@ static int px4_usb_probe(struct usb_interface *intf,
 
 			dev_info(dev, "Multi-device power control: %s\n",
 				 (px4_use_mldev) ? "enabled" : "disabled");
-			/* fall through */
+			fallthrough;
 		case USB_PID_PX_W3U4:
 		case USB_PID_PX_W3PE4:
 		case USB_PID_PX_W3PE5:
@@ -152,7 +152,7 @@ static int px4_usb_probe(struct usb_interface *intf,
 
 		case USB_PID_PX_MLT5U:
 			pxmlt5_model = PXMLT5U_MODEL;
-			/* fall through */
+			fallthrough;
 		case USB_PID_PX_MLT5PE:
 			ret = px4_usb_init_bridge(dev, usb_dev,
 						  &ctx->ctx.pxmlt.it930x);
@@ -167,7 +167,7 @@ static int px4_usb_probe(struct usb_interface *intf,
 
 		case USB_PID_PX_MLT8PE3:
 			pxmlt8_model = PXMLT8PE3_MODEL;
-			/* fall through */
+			fallthrough;
 		case USB_PID_PX_MLT8PE5:
 			ret = px4_usb_init_bridge(dev, usb_dev,
 						  &ctx->ctx.pxmlt.it930x);
@@ -349,7 +349,7 @@ static struct usb_driver px4_usb_driver = {
 	.id_table = px4_usb_ids
 };
 
-int px4_usb_register()
+int px4_usb_register(void)
 {
 	int ret = 0;
 
@@ -451,7 +451,7 @@ fail:
 	return ret;
 }
 
-void px4_usb_unregister()
+void px4_usb_unregister(void)
 {
 	usb_deregister(&px4_usb_driver);
 	ptx_chrdev_context_destroy(px4_usb_chrdev_ctx[PXS1UR_USB_DEVICE]);
