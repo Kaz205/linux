@@ -2558,7 +2558,7 @@ static bool can_age_anon_pages(struct pglist_data *pgdat,
 
 #ifdef CONFIG_LRU_GEN_ENABLED
 DEFINE_STATIC_KEY_ARRAY_TRUE(lru_gen_caps, NR_LRU_GEN_CAPS);
-#define get_cap(cap)	static_branch_likely(&lru_gen_caps[cap])
+#define get_cap(cap)	true
 #else
 DEFINE_STATIC_KEY_ARRAY_FALSE(lru_gen_caps, NR_LRU_GEN_CAPS);
 #define get_cap(cap)	static_branch_unlikely(&lru_gen_caps[cap])
