@@ -5,6 +5,9 @@ SUBLEVEL = 5
 EXTRAVERSION =
 NAME = Baby Opossum Posse
 
+LLVM=1
+ARCH=x86_64
+
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
 # More info can be located in ./README
