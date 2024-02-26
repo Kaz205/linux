@@ -567,7 +567,7 @@ int ptx_chrdev_context_create(const char *name, const char *devname,
 		return -ENOMEM;
 
 	mutex_init(&ctx->lock);
-	strlcpy(ctx->devname, devname, sizeof(ctx->devname));
+	strscpy(ctx->devname, devname, sizeof(ctx->devname));
 
 	INIT_LIST_HEAD(&ctx->group_list);
 
@@ -727,28 +727,6 @@ static int ptx_chrdev_context_set_minor_status(struct ptx_chrdev_context *chrdev
 		chrdev_ctx->minor_table[base + i] = state;
 
 	return 0;
-}
-
-int ptx_chrdev_context_reserve(struct ptx_chrdev_context *chrdev_ctx,
-			       unsigned int num, unsigned int *minor_base)
-{
-	int ret = 0;
-	unsigned int base;
-
-	mutex_lock(&chrdev_ctx->lock);
-
-	ret = ptx_chrdev_context_search_minor(chrdev_ctx, num,
-					      PTX_CHRDEV_MINOR_FREE, &base);
-	if (ret)
-		goto exit;
-
-	ptx_chrdev_context_set_minor_status(chrdev_ctx, base, num,
-					    PTX_CHRDEV_MINOR_RESERVED);
-	*minor_base = MINOR(chrdev_ctx->dev_base) + base;
-
-exit:
-	mutex_unlock(&chrdev_ctx->lock);
-	return ret;
 }
 
 int ptx_chrdev_context_add_group(struct ptx_chrdev_context *chrdev_ctx,
