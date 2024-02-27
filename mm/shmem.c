@@ -552,7 +552,7 @@ static bool shmem_confirm_swap(struct address_space *mapping,
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 /* ifdef here to avoid bloating shmem.o when not necessary */
 
-static int shmem_huge __read_mostly = SHMEM_HUGE_NEVER;
+static int shmem_huge __read_mostly = SHMEM_HUGE_ALWAYS;
 
 static bool shmem_huge_global_enabled(struct inode *inode, pgoff_t index,
 				      loff_t write_end, bool shmem_huge_force,
