@@ -173,18 +173,11 @@ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
 	if (ctx->flags & IORING_SETUP_SQPOLL) {
 		struct io_sq_data *sq = ctx->sq_data;
 
-		/*
-		 * sq->thread might be NULL if we raced with the sqpoll
-		 * thread termination.
-		 */
-		if (sq->thread) {
-			sq_pid = sq->task_pid;
-			sq_cpu = sq->sq_cpu;
-			getrusage(sq->thread, RUSAGE_SELF, &sq_usage);
-			sq_total_time = (sq_usage.ru_stime.tv_sec * 1000000
-					 + sq_usage.ru_stime.tv_usec);
-			sq_work_time = sq->work_time;
-		}
+		sq_pid = sq->task_pid;
+		sq_cpu = sq->sq_cpu;
+		getrusage(sq->thread, RUSAGE_SELF, &sq_usage);
+		sq_total_time = sq_usage.ru_stime.tv_sec * 1000000 + sq_usage.ru_stime.tv_usec;
+		sq_work_time = sq->work_time;
 	}
 
 	seq_printf(m, "SqThread:\t%d\n", sq_pid);
