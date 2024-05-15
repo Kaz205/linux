@@ -678,6 +678,14 @@ config PSI_DEFAULT_DISABLED
 
 	  Say N if unsure.
 
+config PSI_DUMMY
+	bool "Dummy PSI driver"
+	depends on !PSI
+	help
+	  A dummy PSI driver that prints nothing but zeros, useful for Waydroid
+	  which requires /proc/pressure to be present, but doesn't actually
+	  care about the stats.
+
 endmenu # "CPU/Task time and stats accounting"
 
 config CPU_ISOLATION
