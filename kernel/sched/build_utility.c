@@ -94,6 +94,10 @@
 # include "psi.c"
 #endif
 
+#ifdef CONFIG_PSI_DUMMY
+# include "psi_dummy.c"
+#endif
+
 #ifdef CONFIG_MEMBARRIER
 # include "membarrier.c"
 #endif
