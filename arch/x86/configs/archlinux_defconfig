@@ -145,6 +145,7 @@ CONFIG_VIRT_CPU_ACCOUNTING_GEN=y
 # CONFIG_BSD_PROCESS_ACCT is not set
 # CONFIG_TASKSTATS is not set
 # CONFIG_PSI is not set
+CONFIG_PSI_DUMMY=y
 # end of CPU/Task time and stats accounting
 
 # CONFIG_CPU_ISOLATION is not set
@@ -9708,7 +9709,10 @@ CONFIG_USB4=m
 #
 # Android
 #
-# CONFIG_ANDROID_BINDER_IPC is not set
+CONFIG_ANDROID_BINDER_IPC=y
+CONFIG_ANDROID_BINDERFS=y
+CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder"
+# CONFIG_ANDROID_BINDER_IPC_SELFTEST is not set
 # end of Android
 
 CONFIG_LIBNVDIMM=m
