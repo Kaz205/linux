@@ -8,7 +8,7 @@
 #include <linux/kref.h>
 #include <linux/wait.h>
 
-#ifdef CONFIG_PSI
+#if defined(CONFIG_PSI) || defined(CONFIG_PSI_DUMMY)
 
 /* Tracked task states */
 enum psi_task_count {
