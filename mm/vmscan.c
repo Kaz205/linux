@@ -4022,6 +4022,8 @@ done:
 		WARN_ON_ONCE(!success);
 	}
 
+	wakeup_flusher_threads(WB_REASON_VMSCAN);
+
 	return success;
 }
 
