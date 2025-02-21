@@ -146,7 +146,7 @@ static uint_t zfs_mg_fragmentation_threshold = 95;
  * active metaslab that exceeds this threshold will no longer keep its active
  * status allowing better metaslabs to be selected.
  */
-static uint_t zfs_metaslab_fragmentation_threshold = 70;
+static uint_t zfs_metaslab_fragmentation_threshold = 77;
 
 /*
  * When set will load all metaslabs when pool is first opened.
@@ -1175,9 +1175,8 @@ metaslab_group_sort(metaslab_group_t *mg, metaslab_t *msp, uint64_t weight)
 }
 
 /*
- * Calculate the fragmentation for a given metaslab group. We can use
- * a simple average here since all metaslabs within the group must have
- * the same size. The return value will be a value between 0 and 100
+ * Calculate the fragmentation for a given metaslab group.  Weight metaslabs
+ * on the amount of free space.  The return value will be between 0 and 100
  * (inclusive), or ZFS_FRAG_INVALID if less than half of the metaslab in this
  * group have a fragmentation metric.
  */
@@ -1186,24 +1185,29 @@ metaslab_group_fragmentation(metaslab_group_t *mg)
 {
 	vdev_t *vd = mg->mg_vd;
 	uint64_t fragmentation = 0;
-	uint64_t valid_ms = 0;
+	uint64_t valid_ms = 0, total_ms = 0;
+	uint64_t free, total_free = 0;
 
 	for (int m = 0; m < vd->vdev_ms_count; m++) {
 		metaslab_t *msp = vd->vdev_ms[m];
 
-		if (msp->ms_fragmentation == ZFS_FRAG_INVALID)
-			continue;
 		if (msp->ms_group != mg)
+			continue;
+		total_ms++;
+		if (msp->ms_fragmentation == ZFS_FRAG_INVALID)
 			continue;
 
 		valid_ms++;
-		fragmentation += msp->ms_fragmentation;
+		free = (msp->ms_size - metaslab_allocated_space(msp)) /
+		    SPA_MINBLOCKSIZE;  /* To prevent overflows. */
+		total_free += free;
+		fragmentation += msp->ms_fragmentation * free;
 	}
 
-	if (valid_ms <= mg->mg_vd->vdev_ms_count / 2)
+	if (valid_ms < (total_ms + 1) / 2 || total_free == 0)
 		return (ZFS_FRAG_INVALID);
 
-	fragmentation /= valid_ms;
+	fragmentation /= total_free;
 	ASSERT3U(fragmentation, <=, 100);
 	return (fragmentation);
 }
@@ -2889,8 +2893,6 @@ metaslab_fini(metaslab_t *msp)
 	kmem_free(msp, sizeof (metaslab_t));
 }
 
-#define	FRAGMENTATION_TABLE_SIZE	17
-
 /*
  * This table defines a segment size based fragmentation metric that will
  * allow each metaslab to derive its own fragmentation value. This is done
@@ -2901,33 +2903,40 @@ metaslab_fini(metaslab_t *msp)
  * us the fragmentation metric. This means that a high fragmentation metric
  * equates to most of the free space being comprised of small segments.
  * Conversely, if the metric is low, then most of the free space is in
- * large segments. A 10% change in fragmentation equates to approximately
- * double the number of segments.
+ * large segments.
  *
- * This table defines 0% fragmented space using 16MB segments. Testing has
- * shown that segments that are greater than or equal to 16MB do not suffer
- * from drastic performance problems. Using this value, we derive the rest
- * of the table. Since the fragmentation value is never stored on disk, it
- * is possible to change these calculations in the future.
+ * This table defines 0% fragmented space using 512M segments. Using this value,
+ * we derive the rest of the table. This table originally went up to 16MB, but
+ * with larger recordsizes, larger ashifts, and use of raidz3, it is possible
+ * to have significantly larger allocations than were previously possible.
+ * Since the fragmentation value is never stored on disk, it is possible to
+ * change these calculations in the future.
  */
-static const int zfs_frag_table[FRAGMENTATION_TABLE_SIZE] = {
+static const int zfs_frag_table[] = {
 	100,	/* 512B	*/
-	100,	/* 1K	*/
-	98,	/* 2K	*/
-	95,	/* 4K	*/
-	90,	/* 8K	*/
-	80,	/* 16K	*/
-	70,	/* 32K	*/
-	60,	/* 64K	*/
-	50,	/* 128K	*/
-	40,	/* 256K	*/
-	30,	/* 512K	*/
-	20,	/* 1M	*/
-	15,	/* 2M	*/
-	10,	/* 4M	*/
-	5,	/* 8M	*/
-	0	/* 16M	*/
+	99,	/* 1K	*/
+	97,	/* 2K	*/
+	93,	/* 4K	*/
+	88,	/* 8K	*/
+	83,	/* 16K	*/
+	77,	/* 32K	*/
+	71,	/* 64K	*/
+	64,	/* 128K	*/
+	57,	/* 256K	*/
+	50,	/* 512K	*/
+	43,	/* 1M	*/
+	36,	/* 2M	*/
+	29,	/* 4M	*/
+	23,	/* 8M	*/
+	17,	/* 16M	*/
+	12,	/* 32M	*/
+	7,	/* 64M	*/
+	3,	/* 128M	*/
+	1,	/* 256M	*/
+	0,	/* 512M	*/
 };
+#define	FRAGMENTATION_TABLE_SIZE \
+	(sizeof (zfs_frag_table)/(sizeof (zfs_frag_table[0])))
 
 /*
  * Calculate the metaslab's fragmentation metric and set ms_fragmentation.
@@ -4452,8 +4461,8 @@ metaslab_sync_reassess(metaslab_group_t *mg)
 	spa_t *spa = mg->mg_class->mc_spa;
 
 	spa_config_enter(spa, SCL_ALLOC, FTAG, RW_READER);
-	metaslab_group_alloc_update(mg);
 	mg->mg_fragmentation = metaslab_group_fragmentation(mg);
+	metaslab_group_alloc_update(mg);
 
 	/*
 	 * Preload the next potential metaslabs but only on active
