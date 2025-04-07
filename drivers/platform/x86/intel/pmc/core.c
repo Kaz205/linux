@@ -1763,6 +1763,7 @@ static int pmc_core_probe(struct platform_device *pdev)
 
 	device_initialized = true;
 	dev_info(&pdev->dev, " initialized\n");
+	pmc_core_send_ltr_ignore(pmcdev, 3, 1);
 
 	return 0;
 }
