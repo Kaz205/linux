@@ -1,1 +1,1 @@
-#define	ZFS_META_GITREV "41810d393"
+#define	ZFS_META_GITREV "fed961e5d"

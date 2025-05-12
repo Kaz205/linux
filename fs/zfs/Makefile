@@ -84,14 +84,14 @@ clean: clean-Linux
 modules_uninstall-Linux-legacy:
 	$(RM) -r $(addprefix $(KMODDIR)/$(INSTALL_MOD_DIR)/,spl/ avl/ icp/ lua/ nvpair/ unicode/ zcommon/ zfs/ zstd/)
 
-KMODDIR := $(INSTALL_MOD_PATH)/lib/modules/6.14.4-gdca5e23b835c
+KMODDIR := $(INSTALL_MOD_PATH)/lib/modules/6.14.6-g144f7bbb6ebf
 modules_install-Linux: modules_uninstall-Linux-legacy
 	@# Install the kernel modules
 	$(MAKE) -C /home/kazuki/linux M="$$PWD" modules_install \
 		INSTALL_MOD_PATH=$(INSTALL_MOD_PATH) \
 		INSTALL_MOD_DIR=$(INSTALL_MOD_DIR) \
 		$(if ,ARCH=) \
-		KERNELRELEASE=6.14.4-gdca5e23b835c
+		KERNELRELEASE=6.14.6-g144f7bbb6ebf
 	@# Remove extraneous build products when packaging
 	if [ -n "$(DESTDIR)" ] && [ "$(DONT_DELETE_MODULES_FILES)" != "1" ]; then \
 		find $(KMODDIR) -name 'modules.*' -delete; \
@@ -102,11 +102,11 @@ modules_install-Linux: modules_uninstall-Linux-legacy
 	@# Naturally, depmod is less than amused by this.
 	@# So if we find it missing or with one of these present,
 	@# we check for the alternate path for the System.map
-	sysmap=$(INSTALL_MOD_PATH)/boot/System.map-6.14.4-gdca5e23b835c; \
+	sysmap=$(INSTALL_MOD_PATH)/boot/System.map-6.14.6-g144f7bbb6ebf; \
 	{ [ -f "$$sysmap" ] && [ $$(wc -l < "$$sysmap") -ge 100 ]; } || \
-		sysmap=$(INSTALL_MOD_PATH)/usr/lib/debug/boot/System.map-6.14.4-gdca5e23b835c; \
+		sysmap=$(INSTALL_MOD_PATH)/usr/lib/debug/boot/System.map-6.14.6-g144f7bbb6ebf; \
 	if [ -f $$sysmap ]; then \
-		depmod -ae -F $$sysmap 6.14.4-gdca5e23b835c -b $(INSTALL_MOD_PATH)/; \
+		depmod -ae -F $$sysmap 6.14.6-g144f7bbb6ebf -b $(INSTALL_MOD_PATH)/; \
 	fi
 
 modules_install-FreeBSD:
@@ -116,8 +116,8 @@ modules_install-FreeBSD:
 modules_install: modules_install-Linux
 
 data_install-Linux:
-	@mkdir -p $(DESTDIR)//usr/src/zfs-2.3.2/6.14.4-gdca5e23b835c
-	cp ../zfs.release ../zfs_config.h NONE $(DESTDIR)//usr/src/zfs-2.3.2/6.14.4-gdca5e23b835c
+	@mkdir -p $(DESTDIR)//usr/src/zfs-2.3.2/6.14.6-g144f7bbb6ebf
+	cp ../zfs.release ../zfs_config.h NONE $(DESTDIR)//usr/src/zfs-2.3.2/6.14.6-g144f7bbb6ebf
 
 data_install-FreeBSD:
 	@
@@ -134,7 +134,7 @@ modules_uninstall-FreeBSD:
 modules_uninstall: modules_uninstall-Linux
 
 data_uninstall-Linux:
-	$(RM) $(addprefix $(DESTDIR)//usr/src/zfs-2.3.2/6.14.4-gdca5e23b835c/,zfs.release zfs_config.h NONE)
+	$(RM) $(addprefix $(DESTDIR)//usr/src/zfs-2.3.2/6.14.6-g144f7bbb6ebf/,zfs.release zfs_config.h NONE)
 
 data_uninstall-FreeBSD:
 	@
