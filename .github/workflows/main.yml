@@ -19,8 +19,7 @@ jobs:
         run: |
           mkdir -vp /startdir && \
           cp -Rv . /startdir && \
-          pacman -q --noconfirm -Syu expect git && \
-          pacman --noconfirm -Sc && \
+          pacman -q --noconfirm -Syu expect git bc cpio pahole python && \
           rm -rf /var/cache/pacman/pkg/* && \
           ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
           useradd -g users -m builduser && \
