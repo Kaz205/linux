@@ -35,9 +35,7 @@ jobs:
           sudo -u builduser git clone https://github.com/Kaz205/linux-pkgbuild -b linux-9370 --depth=1 && \
           cd linux-pkgbuild/trunk && \
           sudo -u builduser makepkg && \
-          rm -rf /startdir/*/src/ /startdir/*/pkg/ && \
-          pacman --noconfirm -Sc && rm -rf /var/cache/pacman/pkg/* && \
-          cp /startdir/**/*.pkg.tar.zst /packages
+          cp *.pkg.tar.zst /packages
 
       - name: Upload packages as artifacts
         uses: actions/upload-artifact@v4
