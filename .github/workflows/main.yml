@@ -1,0 +1,169 @@
+name: Build
+
+env:
+  LLVM_VERSION: 20.1.8
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build_desktop_kernel:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux/archlinux:base-devel-20250413.0.335299
+      options: --security-opt=seccomp=unconfined
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and install my kernel
+        run: |
+          mkdir -vp /startdir && \
+          cp -Rv . /startdir && \
+          pacman -q --noconfirm -Sy expect git bc cpio pahole python wget && \
+          rm -rf /var/cache/pacman/pkg/* && \
+          ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
+          useradd -g users -m builduser && \
+          echo 'builduser ALL=(ALL) NOPASSWD: /usr/bin/pacman' >> /etc/sudoers && \
+          echo 'builduser ALL=(ALL) NOPASSWD: /usr/bin/sh -c { pacman --noconfirm --ask=4 -U sudo-selinux/sudo-selinux-*.pkg.tar.zst && if test -e /etc/sudoers.pacsave ; then mv /etc/sudoers.pacsave /etc/sudoers ; fi }' >> /etc/sudoers && \
+          echo 'MAKEFLAGS="-j$(nproc)"' >> /etc/makepkg.conf && \
+          echo 'BUILDDIR=/build' >> /etc/makepkg.conf && \
+          echo 'LOGDEST=/logdest' >> /etc/makepkg.conf && \
+          mkdir -vp /packages /build /logdest && \
+          chown -R builduser /startdir /packages /build /logdest $HOME && \
+          sudo -u builduser git config --global http.postBuffer 536870912 && \
+          cd /startdir && \
+          sudo -u builduser wget https://www.kernel.org/pub/tools/llvm/files/llvm-$LLVM_VERSION-x86_64.tar.gz && \
+          sudo -u builduser tar -I gzip -xvf llvm-$LLVM_VERSION-x86_64.tar.gz && \
+          sudo -u builduser rm *.gz && \
+          sudo -u builduser mv llvm* /home/builduser/llvm && \
+          version=$(make -s kernelversion) && \
+          sed -i "s/VERSION/$version/g" pkgbuilds/desktop/PKGBUILD && \
+          branch=$(echo $version | sed -r "s/^([0-9]\.[0-9]+)\..*/\1/") && \
+          sed -i "s/BRANCH/$branch/g" pkgbuilds/desktop/PKGBUILD && \
+          cd pkgbuilds/desktop && \
+          sudo -u builduser makepkg && \
+          cp *.pkg.tar.zst /packages
+
+      - name: Upload packages as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux_desktop
+          path: /packages
+
+  build_server_kernel:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux/archlinux:base-devel-20250413.0.335299
+      options: --security-opt=seccomp=unconfined
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and install my kernel
+        run: |
+          mkdir -vp /startdir && \
+          cp -Rv . /startdir && \
+          pacman -q --noconfirm -Sy expect git bc cpio pahole python wget && \
+          rm -rf /var/cache/pacman/pkg/* && \
+          ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
+          useradd -g users -m builduser && \
+          echo 'builduser ALL=(ALL) NOPASSWD: /usr/bin/pacman' >> /etc/sudoers && \
+          echo 'builduser ALL=(ALL) NOPASSWD: /usr/bin/sh -c { pacman --noconfirm --ask=4 -U sudo-selinux/sudo-selinux-*.pkg.tar.zst && if test -e /etc/sudoers.pacsave ; then mv /etc/sudoers.pacsave /etc/sudoers ; fi }' >> /etc/sudoers && \
+          echo 'MAKEFLAGS="-j$(nproc)"' >> /etc/makepkg.conf && \
+          echo 'BUILDDIR=/build' >> /etc/makepkg.conf && \
+          echo 'LOGDEST=/logdest' >> /etc/makepkg.conf && \
+          mkdir -vp /packages /build /logdest && \
+          chown -R builduser /startdir /packages /build /logdest $HOME && \
+          sudo -u builduser git config --global http.postBuffer 536870912 && \
+          cd /startdir && \
+          sudo -u builduser wget https://www.kernel.org/pub/tools/llvm/files/llvm-$LLVM_VERSION-x86_64.tar.gz && \
+          sudo -u builduser tar -I gzip -xvf llvm-$LLVM_VERSION-x86_64.tar.gz && \
+          sudo -u builduser rm *.gz && \
+          sudo -u builduser mv llvm* /home/builduser/llvm && \
+          version=$(make -s kernelversion) && \
+          sed -i "s/VERSION/$version/g" pkgbuilds/server/PKGBUILD && \
+          branch=$(echo $version | sed -r "s/^([0-9]\.[0-9]+)\..*/\1/") && \
+          sed -i "s/BRANCH/$branch/g" pkgbuilds/server/PKGBUILD && \
+          cd pkgbuilds/server && \
+          sudo -u builduser makepkg && \
+          cp *.pkg.tar.zst /packages
+
+      - name: Upload packages as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux_server
+          path: /packages
+
+  prepare_release:
+    runs-on: ubuntu-latest
+    needs: [build_desktop_kernel, build_server_kernel]
+    steps:
+      - name: Prepare Arch specific binaries for use
+        run: |
+          mkdir -v /tmp/boots
+          echo "Downloading archlinux-bootstrap-x86_64.tar.zst"
+          curl -LO "https://geo.mirror.pkgbuild.com/iso/latest/archlinux-bootstrap-x86_64.tar.zst"
+          sudo tar xf archlinux-bootstrap-x86_64.tar.zst -C /tmp/boots --strip-components 1
+          mkdir -v /tmp/boots/repo
+
+      - name: Get the SELinux packages from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: linux_desktop
+          path: /tmp/boots/repo
+
+      - name: Get the SELinux packages from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: linux_server
+          path: /tmp/boots/repo
+
+      - name: Create package repository files
+        run: |
+          sudo /tmp/boots/usr/bin/arch-chroot /tmp/boots /bin/bash -c \
+           'repo-add /repo/linux-custom.db.tar.xz /repo/*'
+
+      - name: Upload the ready repository as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SELinux pacman repository
+          path: /tmp/boots/repo
+
+  release:
+    runs-on: ubuntu-latest
+    needs: prepare_release
+    steps:
+      - name: Get packages from build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: SELinux pacman repository
+          path: release
+
+      # Like https://github.com/ame-yu/action-delete-latest-release
+      - name: Remove old release
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo
+            const { data: { id } } = await github.rest.repos.getLatestRelease({ owner, repo })
+            await github.rest.repos.deleteRelease({ owner, repo, release_id: id })
+
+      - name: Release all packages
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ArchLinux-SELinux
+          files: release/*
+          body: |
+            # Arch Linux packages to enable SELinux support
+            https://wiki.archlinux.org/index.php/SELinux
+
+            Latest commit:
+            ```
+            ${{ github.event.head_commit.message }}
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
