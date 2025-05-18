@@ -1,0 +1,240 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build_all_packages:
+    runs-on: ubuntu-22.04
+    container:
+      image: archlinux/archlinux:base-devel-20250413.0.335299
+      options: --security-opt=seccomp=unconfined
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and install Arch Linux's SELinux support packages in a docker container
+        run: |
+          mkdir -vp /startdir && \
+          cp -Rv . /startdir && \
+          pacman -q --noconfirm -Syu expect git && \
+          pacman --noconfirm -Sc && \
+          rm -rf /var/cache/pacman/pkg/* && \
+          ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
+          useradd -g users -m builduser && \
+          echo 'builduser ALL=(ALL) NOPASSWD: /usr/bin/pacman' >> /etc/sudoers && \
+          echo 'builduser ALL=(ALL) NOPASSWD: /usr/bin/sh -c { pacman --noconfirm --ask=4 -U sudo-selinux/sudo-selinux-*.pkg.tar.zst && if test -e /etc/sudoers.pacsave ; then mv /etc/sudoers.pacsave /etc/sudoers ; fi }' >> /etc/sudoers && \
+          echo 'MAKEFLAGS="-j$(nproc)"' >> /etc/makepkg.conf && \
+          echo 'BUILDDIR=/build' >> /etc/makepkg.conf && \
+          echo 'LOGDEST=/logdest' >> /etc/makepkg.conf && \
+          mkdir -vp /packages /build /logdest && \
+          chown -R builduser /startdir /packages /build /logdest && \
+          sudo -u builduser git config --global http.postBuffer 536870912 && \
+          cd startdir && \
+          sudo -u builduser git clone https://github.com/Kaz205/linux-pkgbuild -b linux-9370 --depth=1 && \
+          cd linux-pkgbuild/trunk && \
+          sudo -u builduser makepkg && \
+          rm -rf /startdir/*/src/ /startdir/*/pkg/ && \
+          pacman --noconfirm -Sc && rm -rf /var/cache/pacman/pkg/* && \
+          cp /startdir/**/*.pkg.tar.zst /packages
+
+      - name: Upload packages as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Arch Linux packages for SELinux support
+          path: /packages
+
+  # prepare_testing:
+  #   runs-on: ubuntu-22.04
+  #   needs: build_all_packages
+  #   steps:
+  #     - name: Install QEMU to the runner and make needed directories
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install qemu-utils
+  #         mkdir -v repo /tmp/{boots,arch}
+
+  #     - name: Download latest ArchISO bootstrap image
+  #       run: |
+  #         echo "Downloading archlinux-bootstrap-x86_64.tar.zst"
+  #         curl -LO "https://geo.mirror.pkgbuild.com/iso/latest/archlinux-bootstrap-x86_64.tar.zst"
+
+  #     - name: Create new raw image for Arch Linux and mount it as a loop device
+  #       run: |
+  #         qemu-img create -f raw archselinux.raw 8G
+  #         LOOP_DEVICE="$(sudo losetup --show -f -P archselinux.raw)"
+  #         echo "LOOP_DEVICE=${LOOP_DEVICE}" >> "$GITHUB_ENV"
+  #         echo "Using loop device ${LOOP_DEVICE}"
+  #         sudo parted "${LOOP_DEVICE}" mklabel msdos
+  #         sudo parted -a optimal "${LOOP_DEVICE}" mkpart primary 0% 100%
+  #         sudo parted "${LOOP_DEVICE}" set 1 boot on
+  #         sudo mkfs.ext4 "${LOOP_DEVICE}p1"
+  #         sudo tune2fs -L ROOT "${LOOP_DEVICE}p1"
+  #         sudo mount "${LOOP_DEVICE}p1" /tmp/arch
+
+  #     - name: Get the SELinux packages from build job
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: Arch Linux packages for SELinux support
+  #         path: repo
+
+  #     - name: Prepare arch-bootstrap directory, chroot into it and install Arch with SELinux support to loop-mounted raw image
+  #       run: |
+  #         sudo tar xf archlinux-bootstrap-x86_64.tar.zst -C /tmp/boots --strip-components 1
+  #         sudo cp -v repo/* /tmp/boots/var/cache/pacman/pkg
+  #         sudo /tmp/boots/usr/bin/arch-chroot /tmp/boots /bin/bash -ex -c \
+  #          'pacman-key --init;
+  #           pacman-key --populate archlinux;
+  #           mount "'"${LOOP_DEVICE}p1"'" /mnt;
+  #           echo "Server = https://geo.mirror.pkgbuild.com/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist;
+  #           sed -i -e 's/^CheckSpace/#CheckSpace/' /etc/pacman.conf;
+  #           pacman --noconfirm -Sy archlinux-keyring;
+  #           rm /var/cache/pacman/pkg/archlinux-keyring*;
+  #           echo -e "[selinux-testing]\nSigLevel = Never\nServer = file:///var/cache/pacman/pkg" >> /etc/pacman.conf;
+  #           repo-add /var/cache/pacman/pkg/selinux-testing.db.tar.xz /var/cache/pacman/pkg/*;
+  #           pacstrap /mnt base-selinux base-devel-selinux openssh-selinux linux grub;
+  #           genfstab -L /mnt >> /mnt/etc/fstab'
+
+  #     - name: Make testing configurations for the raw image
+  #       run: |
+  #         sudo /tmp/boots/usr/bin/arch-chroot /tmp/arch /bin/bash -ex -c \
+  #          'ln -sfv /usr/share/zoneinfo/UTC /etc/localtime;
+  #           hwclock --systohc;
+  #           sed -i 's/#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen;
+  #           locale-gen;
+  #           echo LANG=en_US.UTF-8 > /etc/locale.conf;
+  #           echo qemu-arch-selinux > /etc/hostname;
+  #           echo -e "127.0.0.1 localhost\n::1 localhost" > /etc/hosts;
+  #           echo -e "[Match]\nName=en*\n[Network]\nDHCP=ipv4" > /etc/systemd/network/dhcp.network;
+  #           systemctl enable systemd-networkd.service;
+  #           sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/" /etc/ssh/sshd_config;
+  #           sed -i "s/#PermitEmptyPasswords no/PermitEmptyPasswords yes/" /etc/ssh/sshd_config;
+  #           systemctl enable sshd;
+  #           sed -i 's/root:x:/root::/' /etc/passwd;
+  #           grub-install --target=i386-pc "'"${LOOP_DEVICE}"'";
+  #           sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub;
+  #           sed -i "/LINUX_DEF/c\GRUB_CMDLINE_LINUX_DEFAULT=\"lsm=lockdown,yama,selinux,bpf selinux=1 console=ttyS0\"" /etc/default/grub;
+  #           grub-mkconfig -o /boot/grub/grub.cfg;
+  #           restorecon -RF /'
+
+  #     - name: Unmount loop devices and convert the QEMU image to qcow2
+  #       run: |
+  #         sudo umount /tmp/boots/mnt
+  #         sudo umount /tmp/arch
+  #         sudo losetup -d "${LOOP_DEVICE}"
+  #         qemu-img convert -f raw -O qcow2 archselinux.raw archselinux.qcow2
+
+  #     - name: Upload VM to artifacts
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: Arch Linux VM with SELinux support
+  #         path: archselinux.qcow2
+
+  # test_SELinux_functionality:
+  #   runs-on: ubuntu-22.04
+  #   needs: prepare_testing
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - name: Install QEMU to the runner and make needed directories
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install qemu-system-x86 qemu-utils
+
+  #     - name: Download VM artifact for testing
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: Arch Linux VM with SELinux support
+
+  #     - name: Use the initial VM image as a backing file
+  #       run: |
+  #         qemu-img create -f qcow2 -f qcow2 -b archselinux.qcow2 archselinux_test.qcow2
+
+  #     - name: run test commands on the image
+  #       run: |
+  #         qemu-system-x86_64 archselinux_test.qcow2 \
+  #           -net nic -net user,hostfwd=tcp::10022-:22 \
+  #           -nographic -m 2048 &
+  #         sleep 25
+  #         for try_count in $(seq 5) ; do
+  #           if timeout 60 ssh -o "stricthostkeychecking=no" root@localhost -p 10022 true ; then
+  #             break
+  #           fi
+  #           echo "failed to connect to the vm after $try_count attempts, retrying..."
+  #           sleep 10
+  #         done
+  #         ssh -o "stricthostkeychecking=no" root@localhost -p 10022 'restorecon -rv /; ls -laz /; sestatus'
+
+  #     - name: upload the qcow2 file containing vm image changes to artifacts
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: arch linux vm after tests and restorecon
+  #         path: archselinux_test.qcow2
+
+  prepare_release:
+    runs-on: ubuntu-22.04
+    needs: build_all_packages
+    steps:
+      - name: Prepare Arch specific binaries for use
+        run: |
+          mkdir -v /tmp/boots
+          echo "Downloading archlinux-bootstrap-x86_64.tar.zst"
+          curl -LO "https://geo.mirror.pkgbuild.com/iso/latest/archlinux-bootstrap-x86_64.tar.zst"
+          sudo tar xf archlinux-bootstrap-x86_64.tar.zst -C /tmp/boots --strip-components 1
+          mkdir -v /tmp/boots/repo
+
+      - name: Get the SELinux packages from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: Arch Linux packages for SELinux support
+          path: /tmp/boots/repo
+
+      - name: Create package repository files
+        run: |
+          sudo /tmp/boots/usr/bin/arch-chroot /tmp/boots /bin/bash -c \
+           'repo-add /repo/selinux.db.tar.xz /repo/*'
+
+      - name: Upload the ready repository as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SELinux pacman repository
+          path: /tmp/boots/repo
+
+  release:
+    runs-on: ubuntu-22.04
+    needs: prepare_release
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Get packages from build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: SELinux pacman repository
+          path: release
+
+      # Like https://github.com/ame-yu/action-delete-latest-release
+      - name: Remove old release
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo
+            const { data: { id } } = await github.rest.repos.getLatestRelease({ owner, repo })
+            await github.rest.repos.deleteRelease({ owner, repo, release_id: id })
+
+      - name: Release all packages
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ArchLinux-SELinux
+          files: release/*
+          body: |
+            # Arch Linux packages to enable SELinux support
+            https://wiki.archlinux.org/index.php/SELinux
+
+            Latest commit:
+            ```
+            ${{ github.event.head_commit.message }}
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
