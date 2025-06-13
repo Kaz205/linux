@@ -1,5 +1,8 @@
 name: Build
 
+env:
+  LLVM_VERSION: 20.1.6
+
 on:
   push:
   pull_request:
@@ -32,8 +35,8 @@ jobs:
           chown -R builduser /startdir /packages /build /logdest $HOME && \
           sudo -u builduser git config --global http.postBuffer 536870912 && \
           cd /startdir && \
-          sudo -u builduser wget https://www.kernel.org/pub/tools/llvm/files/llvm-20.1.5-x86_64.tar.gz && \
-          sudo -u builduser tar -I gzip -xvf llvm-20.1.5-x86_64.tar.gz && \
+          sudo -u builduser wget https://www.kernel.org/pub/tools/llvm/files/llvm-$LLVM_VERSION-x86_64.tar.gz && \
+          sudo -u builduser tar -I gzip -xvf llvm-$LLVM_VERSION-x86_64.tar.gz && \
           sudo -u builduser rm *.gz && \
           sudo -u builduser mv llvm* /home/builduser/llvm && \
           sudo -u builduser git clone https://github.com/Kaz205/linux-pkgbuild -b linux-9370 --depth=1 && \
@@ -73,8 +76,8 @@ jobs:
           chown -R builduser /startdir /packages /build /logdest $HOME && \
           sudo -u builduser git config --global http.postBuffer 536870912 && \
           cd /startdir && \
-          sudo -u builduser wget https://www.kernel.org/pub/tools/llvm/files/llvm-20.1.5-x86_64.tar.gz && \
-          sudo -u builduser tar -I gzip -xvf llvm-20.1.5-x86_64.tar.gz && \
+          sudo -u builduser wget https://www.kernel.org/pub/tools/llvm/files/llvm-$LLVM_VERSION-x86_64.tar.gz && \
+          sudo -u builduser tar -I gzip -xvf llvm-$LLVM_VERSION-x86_64.tar.gz && \
           sudo -u builduser rm *.gz && \
           sudo -u builduser mv llvm* /home/builduser/llvm && \
           sudo -u builduser git clone https://github.com/Kaz205/linux-pkgbuild -b linux-server --depth=1 && \
