@@ -1281,7 +1281,6 @@ void dpm_complete(pm_message_t state)
  */
 void dpm_resume_end(pm_message_t state)
 {
-	pm_restore_gfp_mask();
 	dpm_resume(state);
 	pm_restore_gfp_mask();
 	dpm_complete(state);
