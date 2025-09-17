@@ -294,7 +294,7 @@ static int policy_to_aspm_state(struct pcie_link_state *link)
 		return 0;
 	case POLICY_POWERSAVE:
 		/* Enable ASPM L0s/L1 */
-		return PCIE_LINK_STATE_L0S | PCIE_LINK_STATE_L1;
+		return PCIE_LINK_STATE_L0S | PCIE_LINK_STATE_L1 | link->aspm_default;
 	case POLICY_POWER_SUPERSAVE:
 		/* Enable Everything */
 		return PCIE_LINK_STATE_ASPM_ALL;
