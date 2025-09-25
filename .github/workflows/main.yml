@@ -1,7 +1,7 @@
 name: Build
 
 env:
-  LLVM_VERSION: 21.1.1
+  LLVM_VERSION: 21.1.2
 
 on:
   push:
