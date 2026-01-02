@@ -749,8 +749,7 @@ void elevator_set_default(struct request_queue *q)
 	if (!ctx.type)
 		return;
 
-	if ((q->nr_hw_queues == 1 ||
-			blk_mq_is_shared_tags(q->tag_set->flags))) {
+	if (blk_mq_is_shared_tags(q->tag_set->flags)) {
 		err = elevator_change(q, &ctx);
 		if (err < 0)
 			pr_warn("\"%s\" elevator initialization, failed %d, falling back to \"none\"\n",
