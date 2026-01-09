@@ -4,7 +4,7 @@ pkgrel=1
 pkgdesc='Linux'
 url='https://github.com/Kaz205/linux'
 arch=(x86_64)
-license=(GPL2)
+license=(GPL-2.0-only)
 makedepends=(
   bc
   cpio
@@ -16,8 +16,13 @@ makedepends=(
   tar
   xz
 )
-options=('!strip' '!buildflags' '!makeflags')
-_srcname=archlinux-linux
+options=(
+  !debug
+  !strip
+  !buildflags
+  !makeflags
+)
+_srcname=linux-${pkgver%.*}
 _srctag=v${pkgver%.*}-${pkgver##*.}
 source=(
   "$_srcname::git+https://github.com/Kaz205/linux#branch=BRANCH"
@@ -69,11 +74,13 @@ _package() {
     kmod
   )
   optdepends=(
-    'wireless-regdb: to set the correct wireless channels of your country'
     'linux-firmware: firmware images needed for some devices'
+    'scx-scheds: to use sched-ext schedulers'
+    'wireless-regdb: to set the correct wireless channels of your country'
   )
   provides=(
     KSMBD-MODULE
+    NTSYNC-MODULE
     VIRTUALBOX-GUEST-MODULES
     WIREGUARD-MODULE
   )
@@ -138,6 +145,10 @@ _package-headers() {
   echo "Installing KConfig files..."
   find . -name 'Kconfig*' -exec install -Dm644 {} "$builddir/{}" \;
 
+  echo "Installing unstripped VDSO..."
+  make INSTALL_MOD_PATH="$pkgdir/usr" vdso_install \
+    link=  # Suppress build-id symlinks
+
   echo "Removing unneeded architectures..."
   local arch
   for arch in "$builddir"/arch/*/; do
@@ -178,9 +189,9 @@ _package-headers() {
   ln -sr "$builddir" "$pkgdir/usr/src/$pkgbase"
 }
 
-
 pkgname=(
   "$pkgbase"
+  "$pkgbase-headers"
 )
 for _p in "${pkgname[@]}"; do
   eval "package_$_p() {
@@ -188,3 +199,4 @@ for _p in "${pkgname[@]}"; do
     _package${_p#$pkgbase}
   }"
 done
+
