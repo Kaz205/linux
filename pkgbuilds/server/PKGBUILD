@@ -25,7 +25,7 @@ options=(
 _srcname=linux-${pkgver%.*}
 _srctag=v${pkgver%.*}-${pkgver##*.}
 source=(
-  "$_srcname::https://github.com/Kaz205/linux/archive/refs/heads/BRANCH.zip"
+  "$_srcname::git+https://github.com/Kaz205/linux#branch=BRANCH"
 )
 sha256sums=('SKIP')
 
@@ -34,10 +34,11 @@ export KBUILD_BUILD_USER=$pkgbase
 export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EPOCH})"
 
 prepare() {
-  cd linux-BRANCH
+  cd $_srcname
 
   export LLVM=1
   export PATH="$HOME/llvm/bin:$PATH"
+  git reset --hard
 
   echo "Setting version..."
   echo "-$pkgrel" > localversion.10-pkgrel
@@ -61,7 +62,7 @@ prepare() {
 }
 
 build() {
-  cd linux-BRANCH
+  cd $_srcname
   make all -j$(nproc --all)
 }
 
@@ -88,7 +89,7 @@ _package() {
     wireguard-arch
   )
 
-  cd linux-BRANCH
+  cd $_srcname
   local modulesdir="$pkgdir/usr/lib/modules/$(<version)"
 
   echo "Installing boot image..."
@@ -111,7 +112,7 @@ _package-headers() {
   pkgdesc="Headers and scripts for building modules for the $pkgdesc kernel"
   depends=(pahole)
 
-  cd linux-BRANCH
+  cd $_srcname
   local builddir="$pkgdir/usr/lib/modules/$(<version)/build"
 
   echo "Installing build files..."
