@@ -1,5 +1,5 @@
 pkgbase=linux-server
-pkgver=TAG.arch1
+pkgver=VERSION.arch1
 pkgrel=1
 pkgdesc='Linux'
 url='https://github.com/Kaz205/linux'
@@ -22,10 +22,10 @@ options=(
   !buildflags
   !makeflags
 )
-_srcname=linux-${pkgver%.*.*}
+_srcname=linux-${pkgver%.*}
 _srctag=v${pkgver%.*}-${pkgver##*.}
 source=(
-  "$_srcname::https://github.com/Kaz205/linux/archive/refs/heads/BRANCH.zip"
+  "$_srcname::git+https://github.com/Kaz205/linux#branch=BRANCH"
 )
 sha256sums=('SKIP')
 
@@ -38,6 +38,7 @@ prepare() {
 
   export LLVM=1
   export PATH="$HOME/llvm/bin:$PATH"
+  git reset --hard
 
   echo "Setting version..."
   echo "-$pkgrel" > localversion.10-pkgrel
@@ -62,7 +63,6 @@ prepare() {
 
 build() {
   cd $_srcname
-  export LOCALVERSION="HASH"
   make all -j$(nproc --all)
 }
 
