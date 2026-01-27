@@ -2,6 +2,7 @@ name: Build
 
 env:
   LLVM_VERSION: 21.1.8
+  HASH: ${{ github.event.head_commit.sha }}
 
 on:
   push:
@@ -57,8 +58,9 @@ jobs:
             sudo -u builduser tar -I gzip -xvf llvm-$LLVM_VERSION-x86_64.tar.gz && \
             sudo -u builduser rm *.gz && \
             sudo -u builduser mv llvm* /home/builduser/llvm && \
-            sed -i \"s/VERSION/$version/g\" pkgbuilds/desktop/PKGBUILD && \
+            sed -i \"s/TAG/$version/g\" pkgbuilds/desktop/PKGBUILD && \
             sed -i \"s/BRANCH/$branch/g\" pkgbuilds/desktop/PKGBUILD && \
+            sed -i \"s/HASH/\-g$HASH/g\" pkgbuilds/desktop/PKGBUILD && \
             cd pkgbuilds/desktop && \
             sudo -u builduser makepkg && \
             cp *.pkg.tar.zst /github/workspace/packages"
@@ -117,8 +119,9 @@ jobs:
             sudo -u builduser tar -I gzip -xvf llvm-$LLVM_VERSION-x86_64.tar.gz && \
             sudo -u builduser rm *.gz && \
             sudo -u builduser mv llvm* /home/builduser/llvm && \
-            sed -i \"s/VERSION/$version/g\" pkgbuilds/server/PKGBUILD && \
+            sed -i \"s/TAG/$version/g\" pkgbuilds/server/PKGBUILD && \
             sed -i \"s/BRANCH/$branch/g\" pkgbuilds/server/PKGBUILD && \
+            sed -i \"s/HASH/\-g$HASH/g\" pkgbuilds/server/PKGBUILD && \
             cd pkgbuilds/server && \
             sudo -u builduser makepkg && \
             cp *.pkg.tar.zst /github/workspace/packages"
