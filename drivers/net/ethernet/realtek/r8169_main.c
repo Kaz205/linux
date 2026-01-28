@@ -5674,6 +5674,7 @@ static int rtl_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	 */
 	if (rtl_aspm_is_safe(tp)) {
 		dev_info(&pdev->dev, "System vendor flags ASPM as safe\n");
+		pci_disable_link_state(pdev, PCIE_LINK_STATE_L1_2);
 		rc = 0;
 	} else {
 		rc = pci_disable_link_state(pdev, PCIE_LINK_STATE_L1);
