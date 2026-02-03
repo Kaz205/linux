@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build and install my kernel
-        uses: docker://archlinux/archlinux:base-devel-20250413.0.335299
+        uses: docker://archlinux/archlinux:base-devel
         with:
           args: |
             /bin/bash -c "version=$(make -s kernelversion) && \
@@ -41,7 +41,7 @@ jobs:
             cp -Rv . /startdir && \
             pacman-key --init && \
             pacman -Sy archlinux-keyring --noconfirm && \
-            pacman -q --noconfirm -S expect git bc cpio pahole python wget && \
+            pacman -q --noconfirm -S expect git bc cpio pahole python wget libxml2-legacy && \
             rm -rf /var/cache/pacman/pkg/* && \
             ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
             useradd -g users -m builduser && \
@@ -91,7 +91,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build and install my kernel
-        uses: docker://archlinux/archlinux:base-devel-20250413.0.335299
+        uses: docker://archlinux/archlinux:base-devel
         with:
           args: |
             /bin/bash -c "version=$(make -s kernelversion) && \
@@ -101,7 +101,7 @@ jobs:
             cp -Rv . /startdir && \
             pacman-key --init && \
             pacman -Sy archlinux-keyring --noconfirm && \
-            pacman -q --noconfirm -S expect git bc cpio pahole python wget && \
+            pacman -q --noconfirm -S expect git bc cpio pahole python wget libxml2-legacy && \
             rm -rf /var/cache/pacman/pkg/* && \
             ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
             useradd -g users -m builduser && \
