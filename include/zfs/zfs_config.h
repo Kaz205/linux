@@ -496,6 +496,9 @@
 /* Define to 1 if you have the 'mlockall' function. */
 #define HAVE_MLOCKALL 1
 
+/* 'flags' in 'struct page' is a struct */
+#define HAVE_MM_PAGE_FLAGS_STRUCT 1
+
 /* PG_error flag is available */
 /* #undef HAVE_MM_PAGE_FLAG_ERROR */
 
@@ -838,7 +841,7 @@
 #define ZFS_DEVICE_MINOR 249
 
 /* Define the project alias string. */
-#define ZFS_META_ALIAS "zfs-2.4.0-1"
+#define ZFS_META_ALIAS "zfs-2.4.1-1"
 
 /* Define the project author. */
 #define ZFS_META_AUTHOR "OpenZFS"
@@ -847,7 +850,7 @@
 /* #undef ZFS_META_DATA */
 
 /* Define the maximum compatible kernel version. */
-#define ZFS_META_KVER_MAX "6.18"
+#define ZFS_META_KVER_MAX "6.19"
 
 /* Define the minimum compatible kernel version. */
 #define ZFS_META_KVER_MIN "4.18"
@@ -871,7 +874,7 @@
 #define ZFS_META_RELEASE "1"
 
 /* Define the project version. */
-#define ZFS_META_VERSION "2.4.0"
+#define ZFS_META_VERSION "2.4.1"
 
 /* count is located in percpu_ref.data */
 #define ZFS_PERCPU_REF_COUNT_IN_DATA 1
