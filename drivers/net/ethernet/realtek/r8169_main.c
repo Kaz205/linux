@@ -3083,7 +3083,6 @@ static void rtl_enable_ltr(struct rtl8169_private *tp)
 	case RTL_GIGA_MAC_VER_61 ... RTL_GIGA_MAC_VER_66:
 		r8168_mac_ocp_write(tp, 0xcdd0, 0x9003);
 		r8168_mac_ocp_modify(tp, LTR_SNOOP, 0x0000, LTR_SNOOP_EN);
-		r8168_mac_ocp_modify(tp, ALDPS_LTR, 0x0000, ALDPS_LTR_EN);
 		r8168_mac_ocp_write(tp, 0xcdd2, 0x889c);
 		r8168_mac_ocp_write(tp, 0xcdd8, 0x9003);
 		r8168_mac_ocp_write(tp, 0xcdd4, 0x8c30);
@@ -3097,6 +3096,7 @@ static void rtl_enable_ltr(struct rtl8169_private *tp)
 		r8168_mac_ocp_write(tp, 0xcdf0, 0x8C09);
 		r8168_mac_ocp_write(tp, 0xcdf2, 0x9003);
 		r8168_mac_ocp_modify(tp, LTR_OBFF_LOCK, 0x0000, LINK_SPEED_CHANGE_EN);
+		r8168_mac_ocp_modify(tp, ALDPS_LTR, 0x0000, ALDPS_LTR_EN);
 		break;
 	case RTL_GIGA_MAC_VER_46 ... RTL_GIGA_MAC_VER_48:
 	case RTL_GIGA_MAC_VER_52:
