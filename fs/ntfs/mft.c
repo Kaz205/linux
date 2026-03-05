@@ -2715,8 +2715,8 @@ static int ntfs_write_mft_block(struct folio *folio, struct writeback_control *w
 	struct runlist_element *rl;
 	loff_t i_size = i_size_read(vi);
 
-	ntfs_debug("Entering for inode 0x%lx, attribute type 0x%x, folio index 0x%lx.",
-			vi->i_ino, ni->type, folio->index);
+	ntfs_debug("Entering for inode 0x%llx, attribute type 0x%x, folio index 0x%lx.",
+			ni->mft_no, ni->type, folio->index);
 
 	/* We have to zero every time due to mmap-at-end-of-file. */
 	if (folio->index >= (i_size >> folio_shift(folio)))
