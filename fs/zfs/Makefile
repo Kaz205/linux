@@ -118,8 +118,8 @@ modules_install-FreeBSD:
 modules_install: modules_install-Linux
 
 data_install-Linux:
-	@mkdir -p $(DESTDIR)//usr/src/zfs-2.4.2/7.0.4-gb5cdbae9582b
-	cp ../zfs.release ../zfs_config.h NONE $(DESTDIR)//usr/src/zfs-2.4.2/7.0.4-gb5cdbae9582b
+	@mkdir -p $(DESTDIR)//usr/src/zfs-2.4.3/7.0.4-gb5cdbae9582b
+	cp ../zfs.release ../zfs_config.h NONE $(DESTDIR)//usr/src/zfs-2.4.3/7.0.4-gb5cdbae9582b
 
 data_install-FreeBSD:
 	@
@@ -136,7 +136,7 @@ modules_uninstall-FreeBSD:
 modules_uninstall: modules_uninstall-Linux
 
 data_uninstall-Linux:
-	$(RM) $(addprefix $(DESTDIR)//usr/src/zfs-2.4.2/7.0.4-gb5cdbae9582b/,zfs.release zfs_config.h NONE)
+	$(RM) $(addprefix $(DESTDIR)//usr/src/zfs-2.4.3/7.0.4-gb5cdbae9582b/,zfs.release zfs_config.h NONE)
 
 data_uninstall-FreeBSD:
 	@

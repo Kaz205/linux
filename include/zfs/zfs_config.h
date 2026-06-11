@@ -291,6 +291,9 @@
 /* fs_context exists */
 #define HAVE_FS_CONTEXT 1
 
+/* fs_parse() takes fs_parameter_spec directly */
+#define HAVE_FS_PARSE_TAKES_SPEC 1
+
 /* yes */
 #define HAVE_GENERIC_FADVISE 1
 
@@ -870,7 +873,7 @@
 #define ZFS_DEVICE_MINOR 249
 
 /* Define the project alias string. */
-#define ZFS_META_ALIAS "zfs-2.4.2-1"
+#define ZFS_META_ALIAS "zfs-2.4.3-1"
 
 /* Define the project author. */
 #define ZFS_META_AUTHOR "OpenZFS"
@@ -903,9 +906,16 @@
 #define ZFS_META_RELEASE "1"
 
 /* Define the project version. */
-#define ZFS_META_VERSION "2.4.2"
+#define ZFS_META_VERSION "2.4.3"
 
 /* count is located in percpu_ref.data */
 #define ZFS_PERCPU_REF_COUNT_IN_DATA 1
 
 
+
+#ifdef CONFIG_ZFS
+/* #undef ZFS_DEBUG */
+#ifdef CONFIG_ZFS_DEBUG
+#define ZFS_DEBUG 1
+#endif
+#endif

@@ -141,6 +141,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/always-arch.m4 \
 	$(top_srcdir)/config/kernel-fpu.m4 \
 	$(top_srcdir)/config/kernel-free-inode.m4 \
 	$(top_srcdir)/config/kernel-fs-context.m4 \
+	$(top_srcdir)/config/kernel-fs-parse.m4 \
 	$(top_srcdir)/config/kernel-fsync-bdev.m4 \
 	$(top_srcdir)/config/kernel-generic_fadvise.m4 \
 	$(top_srcdir)/config/kernel-generic_fillattr.m4 \
@@ -733,10 +734,10 @@ OTOOL64 =
 PACKAGE = zfs
 PACKAGE_BUGREPORT = 
 PACKAGE_NAME = zfs
-PACKAGE_STRING = zfs 2.4.2
+PACKAGE_STRING = zfs 2.4.3
 PACKAGE_TARNAME = zfs
 PACKAGE_URL = 
-PACKAGE_VERSION = 2.4.2
+PACKAGE_VERSION = 2.4.3
 PARALLEL = 
 PATH_SEPARATOR = :
 PKG_CONFIG = /usr/bin/pkg-config
@@ -788,14 +789,14 @@ UBSAN_LDFLAGS =
 UBSAN_ZFS = _without_ubsan
 USE_NLS = yes
 VENDOR = arch
-VERSION = 2.4.2
+VERSION = 2.4.3
 WITH_DEBUG = 
 WITH_INVARIANTS = 
 XGETTEXT = /usr/bin/xgettext
 XGETTEXT_015 = /usr/bin/xgettext
 XGETTEXT_EXTRA_OPTIONS = 
 ZFS_CONFIG = all
-ZFS_META_ALIAS = zfs-2.4.2-1
+ZFS_META_ALIAS = zfs-2.4.3-1
 ZFS_META_AUTHOR = OpenZFS
 ZFS_META_DATA = 
 ZFS_META_KVER_MAX = 7.0
@@ -806,7 +807,7 @@ ZFS_META_LT_CURRENT =
 ZFS_META_LT_REVISION = 
 ZFS_META_NAME = zfs
 ZFS_META_RELEASE = 1
-ZFS_META_VERSION = 2.4.2
+ZFS_META_VERSION = 2.4.3
 ZLIB_CFLAGS = -DWITH_GZFILEOP
 ZLIB_LIBS = -lz
 ZLIB_PC = zlib
