@@ -137,7 +137,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/always-arch.m4 \
 	$(top_srcdir)/config/kernel-filemap-splice-read.m4 \
 	$(top_srcdir)/config/kernel-flush_dcache_page.m4 \
 	$(top_srcdir)/config/kernel-fmode-t.m4 \
-	$(top_srcdir)/config/kernel-follow-down-one.m4 \
+	$(top_srcdir)/config/kernel-follow-down.m4 \
 	$(top_srcdir)/config/kernel-fpu.m4 \
 	$(top_srcdir)/config/kernel-free-inode.m4 \
 	$(top_srcdir)/config/kernel-fs-context.m4 \
@@ -149,6 +149,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/always-arch.m4 \
 	$(top_srcdir)/config/kernel-genhd-flags.m4 \
 	$(top_srcdir)/config/kernel-get-disk-ro.m4 \
 	$(top_srcdir)/config/kernel-iattr-vfsid.m4 \
+	$(top_srcdir)/config/kernel-idmap.m4 \
 	$(top_srcdir)/config/kernel-idmap_mnt_api.m4 \
 	$(top_srcdir)/config/kernel-inode-create.m4 \
 	$(top_srcdir)/config/kernel-inode-getattr.m4 \
@@ -190,7 +191,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/always-arch.m4 \
 	$(top_srcdir)/config/kernel-security-inode-init.m4 \
 	$(top_srcdir)/config/kernel-set-nlink.m4 \
 	$(top_srcdir)/config/kernel-setattr-prepare.m4 \
-	$(top_srcdir)/config/kernel-sget-args.m4 \
 	$(top_srcdir)/config/kernel-show-options.m4 \
 	$(top_srcdir)/config/kernel-shrink.m4 \
 	$(top_srcdir)/config/kernel-siginfo.m4 \
@@ -215,6 +215,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/always-arch.m4 \
 	$(top_srcdir)/config/kernel-vfs-readpages.m4 \
 	$(top_srcdir)/config/kernel-vfs-set_page_dirty.m4 \
 	$(top_srcdir)/config/kernel-vfs-writepage.m4 \
+	$(top_srcdir)/config/kernel-workqueue.m4 \
 	$(top_srcdir)/config/kernel-writeback.m4 \
 	$(top_srcdir)/config/kernel-xattr-handler.m4 \
 	$(top_srcdir)/config/kernel-zero_page.m4 \
@@ -305,6 +306,7 @@ am__kernel_linux_HEADERS_DIST = os/linux/kernel/linux/blkdev_compat.h \
 	os/linux/kernel/linux/simd_x86.h \
 	os/linux/kernel/linux/utsname_compat.h \
 	os/linux/kernel/linux/vfs_compat.h \
+	os/linux/kernel/linux/workqueue_compat.h \
 	os/linux/kernel/linux/xattr_compat.h
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -734,10 +736,10 @@ OTOOL64 =
 PACKAGE = zfs
 PACKAGE_BUGREPORT = 
 PACKAGE_NAME = zfs
-PACKAGE_STRING = zfs 2.4.3
+PACKAGE_STRING = zfs 2.4.4
 PACKAGE_TARNAME = zfs
 PACKAGE_URL = 
-PACKAGE_VERSION = 2.4.3
+PACKAGE_VERSION = 2.4.4
 PARALLEL = 
 PATH_SEPARATOR = :
 PKG_CONFIG = /usr/bin/pkg-config
@@ -789,17 +791,17 @@ UBSAN_LDFLAGS =
 UBSAN_ZFS = _without_ubsan
 USE_NLS = yes
 VENDOR = arch
-VERSION = 2.4.3
+VERSION = 2.4.4
 WITH_DEBUG = 
 WITH_INVARIANTS = 
 XGETTEXT = /usr/bin/xgettext
 XGETTEXT_015 = /usr/bin/xgettext
 XGETTEXT_EXTRA_OPTIONS = 
 ZFS_CONFIG = all
-ZFS_META_ALIAS = zfs-2.4.3-1
+ZFS_META_ALIAS = zfs-2.4.4-1
 ZFS_META_AUTHOR = OpenZFS
 ZFS_META_DATA = 
-ZFS_META_KVER_MAX = 7.1
+ZFS_META_KVER_MAX = 7.2
 ZFS_META_KVER_MIN = 4.18
 ZFS_META_LICENSE = CDDL
 ZFS_META_LT_AGE = 
@@ -807,7 +809,7 @@ ZFS_META_LT_CURRENT =
 ZFS_META_LT_REVISION = 
 ZFS_META_NAME = zfs
 ZFS_META_RELEASE = 1
-ZFS_META_VERSION = 2.4.3
+ZFS_META_VERSION = 2.4.4
 ZLIB_CFLAGS = -DWITH_GZFILEOP
 ZLIB_LIBS = -lz
 ZLIB_PC = zlib
@@ -915,6 +917,7 @@ zfsexecdir = ${exec_prefix}/libexec/zfs
 #	os/linux/kernel/linux/simd_x86.h \
 #	os/linux/kernel/linux/utsname_compat.h \
 #	os/linux/kernel/linux/vfs_compat.h \
+#	os/linux/kernel/linux/workqueue_compat.h \
 #	os/linux/kernel/linux/xattr_compat.h
 
 #kernel_sysdir = $(kerneldir)/sys
