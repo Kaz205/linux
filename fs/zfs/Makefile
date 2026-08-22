@@ -118,8 +118,8 @@ modules_install-FreeBSD:
 modules_install: modules_install-Linux
 
 data_install-Linux:
-	@mkdir -p $(DESTDIR)//usr/src/zfs-2.4.3/7.1.5-gdeb90ed67280
-	cp ../zfs.release ../zfs_config.h NONE $(DESTDIR)//usr/src/zfs-2.4.3/7.1.5-gdeb90ed67280
+	@mkdir -p $(DESTDIR)//usr/src/zfs-2.4.4/7.1.5-gdeb90ed67280
+	cp ../zfs.release ../zfs_config.h NONE $(DESTDIR)//usr/src/zfs-2.4.4/7.1.5-gdeb90ed67280
 
 data_install-FreeBSD:
 	@
@@ -136,7 +136,7 @@ modules_uninstall-FreeBSD:
 modules_uninstall: modules_uninstall-Linux
 
 data_uninstall-Linux:
-	$(RM) $(addprefix $(DESTDIR)//usr/src/zfs-2.4.3/7.1.5-gdeb90ed67280/,zfs.release zfs_config.h NONE)
+	$(RM) $(addprefix $(DESTDIR)//usr/src/zfs-2.4.4/7.1.5-gdeb90ed67280/,zfs.release zfs_config.h NONE)
 
 data_uninstall-FreeBSD:
 	@
@@ -166,7 +166,8 @@ cppcheck-FreeBSD:
 cppcheck: cppcheck-Linux
 
 distdir:
-	cd . && find . -name '*.[chS]' -exec sh -c 'for f; do mkdir -p $$distdir/$${f%/*}; cp ./$$f $$distdir/$$f; done' _ {} +
+	( cd . && find . -name '*.[chS]' ) | \
+	  while read f; do mkdir -p $$distdir/$${f%/*}; cp ./$$f $$distdir/$$f; done
 	cp ./Makefile.bsd $$distdir/Makefile.bsd
 
 gen-zstd-symbols:
