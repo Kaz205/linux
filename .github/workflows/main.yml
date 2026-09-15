@@ -46,8 +46,8 @@ jobs:
             echo 'MAKEFLAGS=-j$(nproc)' >> /etc/makepkg.conf && \
             echo 'BUILDDIR=/build' >> /etc/makepkg.conf && \
             echo 'LOGDEST=/logdest' >> /etc/makepkg.conf && \
-            mkdir -vp /packages /build /logdest && \
-            chown -R builduser /startdir /packages /build /logdest $HOME && \
+            mkdir -vp /packages /build /logdest /github/workspace/packages && \
+            chown -R builduser /startdir /packages /build /logdest /github/workspace/packages $HOME && \
             sudo -u builduser git config --global http.postBuffer 536870912 && \
             cd /startdir && \
             LLVM_VERSION=$(curl -s https://www.kernel.org/pub/tools/llvm/files/sha256sums.asc | grep -v rc | grep "llvm-.*\.gz$" | tail -n1 | awk '{print $2}') && \
