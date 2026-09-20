@@ -10,12 +10,13 @@
 
 #include <linux/kernel.h>
 #include <linux/module.h>
+#include <linux/version.h>
 
 #include "revision.h"
 #include "px4_usb.h"
 #include "firmware.h"
 
-static int __init init_px4_drv(void)
+static int __init m_init(void)
 {
 	int ret = 0;
 
@@ -47,13 +48,14 @@ static int __init init_px4_drv(void)
 	return 0;
 }
 
-static void __exit cleanup_px4_drv(void)
+static void __exit m_cleanup(void)
 {
 	px4_usb_unregister();
 }
 
-module_init(init_px4_drv);
-module_exit(cleanup_px4_drv);
+module_init(m_init);
+module_exit(m_cleanup);
+
 MODULE_VERSION(PX4_DRV_VERSION);
 MODULE_AUTHOR("nns779");
 MODULE_DESCRIPTION("Unofficial Linux driver for PLEX PX4/PX5/PX-MLT series ISDB-T/S receivers");
