@@ -12,7 +12,6 @@ modules.order
 *.mod.c
 *.mod.o
 
-/driver/revision.h
 /fwtool/fwtool
 
 fwtool/*.bin
@@ -25,3 +24,6 @@ fwtool/*.bin
 
 .vscode/
 !.vscode/c_cpp_properties.json
+/.vs/
+
+.codex*

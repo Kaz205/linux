@@ -1,4 +1,4 @@
-# px4_drv - Unofficial Linux / Windows (WinUSB) driver for PLEX PX4/PX5/PX-MLT series ISDB-T/S receivers
+# px4_drv - Unofficial Linux / Windows (WinUSB) driver for PLEX PX4/PX5/PX-MLT series / e-Better DTV series ISDB-T/S receivers
 
 PLEX や e-Better から発売された各種 ISDB-T/S チューナー向けの chardev 版非公式 Linux ドライバ / Windows (WinUSB) ドライバです。  
 PLEX 社の [Webサイト](http://plex-net.co.jp) にて配布されている公式ドライバとは**別物**です。
@@ -10,11 +10,14 @@ PLEX 社の [Webサイト](http://plex-net.co.jp) にて配布されている公
 
 ### 変更点 (WinUSB 版)
 
+動作確認は Windows 10 / Windows 11 (x64) で行っています。
+
 - エラー発生時の MessageBox を表示しない設定を追加 
   - BonDriver の ini 内の `DisplayErrorMessage` を 1 に設定すると今まで通り MessageBox が表示される
 - BS/CS の ChSet に2024年10月～2025年1月に行われた BS トランスポンダ再編後の物理チャンネル情報を反映
 - [hendecarows 氏のフォーク](https://github.com/hendecarows/px4_drv) での更新を取り込み、DTV02A-1T1S-U / DTV03A-1TU / PX-M1UR / PX-S1UR に対応
-- PX-Q3PE5 の inf ファイルを追加
+- PX-Q3PE5 に対応し、inf ファイルを追加
+- PX-MLT5PE のリブランド品である DTV02A-5TS-P (USB Product ID: 0x924e) に対応し、inf ファイルを追加 (v0.6.0 以降)
 - inf ファイルをより分かりやすい名前に変更
 - inf ファイルを ARM 版 Windows でもインストールできるようにする
   - 実機がないので試せていないけど、おそらくインストールできるはず
@@ -26,23 +29,32 @@ PLEX 社の [Webサイト](http://plex-net.co.jp) にて配布されている公
   - ref: https://mevius.5ch.net/test/read.cgi/avi/1577466040/104-108
 - 自己署名証明書のインストール・アンインストールスクリプトを追加
   - 拡張子が .jse となっているが、これは PowerShell スクリプトにダブルクリックで実行させるための JScript コードを先頭の行に加えたもの
-  - 実際に表示されないかは今のところ未確認
 - 地上波の ChSet に物理 53ch ～ 62ch の定義を追加
   - 物理 53ch ～ 62ch は地上波の割り当て周波数から削除されているが、現在も ”イッツコムch10” など、一部ケーブルテレビの自主放送の割り当て周波数として使われている
 - BS/CS の ChSet に2022年3月開局の BS 新チャンネル（BS松竹東急・BSJapanext・BSよしもと）の定義を追加
 - バージョン情報が DLL のプロパティに表示されないのを修正
 - ビルドとパッケージングを全自動で行うスクリプトを追加
-  - Visual Studio 2019 が入っていれば、build.ps1 を実行するだけで全自動でビルドからパッケージングまで行える
+  - Visual Studio 2022 が入っていれば、build.ps1 を実行するだけで全自動でビルドからパッケージングまで行える
+- 各機種の内蔵 B-CAS カードリーダーを利用するためのドライバを追加 (v0.6.0 以降)
+  - 同梱の `WinSCard.dll` を利用するアプリケーションの実行ファイルと同じフォルダに配置すると、内蔵カードリーダーを優先して利用できるようになる
+  - Windows が認識している外付けカードリーダーも引き続き利用できる
+- チャンネル切り替え、USB の切断・再接続、内蔵カードリーダーとの同時利用に関する安定性を改善 (v0.6.0 以降)
+- fwtool: PX-W3PE5 / PX-Q3PE4 / PX-Q3PE5 / PX-W3U4 / PX-Q3U4 / PX-MLT5PE / PX-MLT8PE の2021年版公式 Windows ドライバからのファームウェア抽出に対応
+  - 既定の抽出済みファームウェアで問題なく動作することが知られているため、特段実用性はない
 - README（このページ）に WinUSB 版のインストール方法などを追記
 
 ### 変更点 (Linux 版)
 
-動作確認は Ubuntu 20.04 LTS (x64) で行っています。
+動作確認は Ubuntu 22.04 LTS (x64) で行っています。
 
 - チップ構成が一部変更された、ロット番号 2309 (2023年9月) 以降の DTV02A-1T1S-U に対応
 - [otya 氏のフォーク](https://github.com/otya128/px4_drv) での更新を取り込み、安定性と互換性を改善
-- [techmadot 氏のフォーク](https://github.com/techmadot/px4_drv) の内容を取り込み、PX-M1UR / PX-S1UR に対応
-- [kznrluk 氏のフォーク](https://github.com/kznrluk/px4_drv) の内容を取り込み、Linux カーネル 6.4 系以降の API 変更に対応
+- [techmadot 氏のフォーク](https://github.com/techmadot/px4_drv) の更新を取り込み、PX-M1UR / PX-S1UR に対応
+- [kznrluk 氏のフォーク](https://github.com/kznrluk/px4_drv) の更新を取り込み、Linux カーネル 6.4 系以降の API 変更に対応
+- [hendecarows 氏のフォーク](https://github.com/hendecarows/px4_drv) での更新を取り込み、DTV03A-1TU に対応
+- PX-MLT5PE のリブランド品である DTV02A-5TS-P (USB Product ID: 0x924e) に対応
+- https://github.com/tsukumijima/px4_drv/pull/33 をマージし、IBT (Indirect Branch Tracking) 対応に伴う `objtool` の検査強化により、Linux 6.15 系などでモジュールをビルド・ロードできない問題に対応
+  - 当初は保守的に Linux 6.15.4 以降でのみ `module_init()` と `module_exit()` を使っていたが、これらは古いカーネルでも利用できるため、v0.6.0 以降ではカーネル版による分岐を削除して統一
 - https://github.com/tsukumijima/px4_drv/pull/6 をマージし、Linux カーネル 6.8 系以降の API 変更に対応
 - https://github.com/tsukumijima/px4_drv/pull/3 をマージし、`ctrl_timeout` をモジュールパラメーターに追加
 - Debian パッケージ (.deb) の作成とインストールに対応
@@ -71,23 +83,31 @@ PLEX 社の [Webサイト](http://plex-net.co.jp) にて配布されている公
 	  - チップ構成が一部変更された、ロット番号 2309 (2023年9月) 以降の DTV02A-1T1S-U にも対応しています。  
 	  手元の実機では問題なく動作していますが、長期間の動作テストは行えていないため、未知の不具合があるかもしれません。
 	- DTV02A-4TS-P
-	- DTV03A-1TU (実験的・Windows 版ドライバのみ)
+	- DTV02A-5TS-P (PX-MLT5PE のリブランド品)
+	- DTV03A-1TU (実験的)
+	  - チップ構成が大幅に変更された、ロット番号 2021-11 以降の個体のみ対応しています。
 
 > [!NOTE]
 > 2021 年以降メンテナンスされていない [nns779/px4_drv](https://github.com/nns779/px4_drv) と異なり、新規に下記チューナーのサポートを追加しています。
 > 
 > - PLEX PX-M1UR
 > - PLEX PX-S1UR
+> - e-Better DTV02A-5TS-P (PX-MLT5PE のリブランド品)
 > - e-Better DTV02A-1T1S-U / Digibest ISDB2056 (Windows 版ドライバを新規追加)
 > - e-Better DTV02A-1T1S-U (ロット番号 2309 以降) / Digibest ISDB2056N
-> - e-Better DTV03A-1TU / Digibest ISDBT2071 (Windows 版ドライバのみ)
+> - e-Better DTV03A-1TU / Digibest ISDBT2071 (ロット番号 2021-11 以降)
+
+> [!WARNING]
+> PX-M1UR または DTV02(A)-1T1S-U で CATV（周波数変換パススルー）の ISDB-T C13ch ~ C24ch を受信するには、[専用の recpt1 フォーク (hendecarows/recpt1)](https://github.com/hendecarows/recpt1) が必要となります。  
+> [stz2012/recpt1](https://github.com/stz2012/recpt1) や [recisdb](https://github.com/kazuki0824/recisdb-rs) では、当該機種にて C13ch ~ C62ch を正常に選局できないことが報告されています（[詳細はこちら](https://github.com/tsukumijima/px4_drv/issues/16)）。  
+> ただし、C13ch ~ C24ch 以外のチャンネルであれば、stz2012/recpt1 や recisdb でも問題なく選局・受信が可能です。
 
 ## インストール (Windows)
 
 Windows (WinUSB) 版のドライバは、OS にチューナーを認識させるための inf ファイルと、px4_drv 専用の BonDriver、ドライバの実体でチューナー操作を司る DriverHost_PX4 から構成されています。
 
 ビルド済みのアーカイブは [こちら](https://github.com/tsukumijima/DTV-Builds) からダウンロードできます。  
-または、winusb フォルダにある build.ps1 を実行して、ご自分でビルドしたものを使うこともできます (Visual Studio 2019 が必要です) 。
+または、winusb フォルダにある build.ps1 を実行して、ご自分でビルドしたものを使うこともできます (Visual Studio 2022 が必要です) 。
 
 ### 1. 自己署名証明書のインストール
 
@@ -95,6 +115,13 @@ Driver フォルダには、各機種ごとのドライバのインストール�
 ドライバをインストールする前に cert-install.jse を実行し、自己署名証明書をインストールしてください。
 
 自己署名証明書をインストールして信頼することで、自己署名証明書を使用して署名されたドライバも、（自己署名証明書をアンインストールするまでは）通常の署名付きドライバと同様に信頼されるようになります。
+
+cert-install.jse が Smart App Control や関連付けの変更などにより実行できない場合は、管理者権限の Windows Terminal または PowerShell を開き、ビルド済みアーカイブ内の Driver フォルダに移動した上で、下記コマンドを実行してください。
+
+```powershell
+certutil.exe -addstore Root ".\px4_drv_winusb.cer"
+certutil.exe -addstore TrustedPublisher ".\px4_drv_winusb.cer"
+```
 
 ### 2. ドライバのインストール
 
@@ -107,7 +134,7 @@ Driver フォルダには、各機種ごとのドライバのインストール�
 チューナーの機種に応じた BonDriver を配置します。
 
 - PX4/PX5 シリーズの機種: `BonDriver_PX4`
-- PX-MLT シリーズの機種・DTV02A-4TS-P: `BonDriver_PX-MLT`
+- PX-MLT シリーズの機種・DTV02A-4TS-P・DTV02A-5TS-P: `BonDriver_PX-MLT`
 - DTV02A-1T1S-U: `BonDriver_ISDB2056`
 - DTV02A-1T1S-U (ロット番号 2309 以降): `BonDriver_ISDB2056N`
 - DTV03A-1TU: `BonDriver_ISDBT2071`
@@ -119,6 +146,40 @@ BonDriver と同じフォルダに DriverHost_PX4.exe / DriverHost_PX4.ini / it9
 
 使用にあたり、特段 ini ファイルの設定変更などは必要ありません。ソフトウェアごとにチャンネルスキャンを行えばそのまま視聴できます。  
 なお、BonDriver の ini ファイル内の `DisplayErrorMessage` を 1 に設定すると、オリジナル同様にエラー発生時にメッセージボックスを表示します。
+
+### 4. 内蔵 B-CAS カードリーダーの利用
+
+**v0.6.0 以降、winUSB 版 px4_drv 専用の WinSCard.dll を TVTest.exe や EpgDataCap_Bon.exe と同じフォルダに配置することで、内蔵カードリーダーが利用できるようになりました！**
+
+機種別の BonDriver フォルダに同梱されている `WinSCard.dll` を、TVTest や EDCB など、B-CAS カードを利用するアプリケーションの実行ファイルと同じフォルダにコピーしてください。
+
+> [!NOTE]
+> **Windows が認識している外付けカードリーダーと内蔵カードリーダーは併用できます。**  
+> カードリーダーの一覧には内蔵カードリーダー、外付けカードリーダーの順で表示されます。  
+
+> [!NOTE]
+> **リモートデスクトップ接続中に、チューナーを接続した PC 側の外付けカードリーダーが見つからなくなる場合があります。**  
+> RDP のスマートカードリダイレクトが有効なセッションでは、Windows 標準の WinSCard API が接続元 PC 側のカードリーダーを参照するためです。  
+> [Windows 標準の対処方法](https://learn.microsoft.com/ja-jp/azure/virtual-desktop/redirection-configure-smart-cards)として、リモート デスクトップ接続の「オプションの表示」→「ローカル リソース」→「詳細」からスマートカードのチェックを外すか、接続先 PC の `gpedit.msc` で「コンピューターの構成」→「管理用テンプレート」→「Windows コンポーネント」→「リモート デスクトップ サービス」→「リモート デスクトップ セッション ホスト」→「デバイスとリソースのリダイレクト」→「スマート カード デバイスのリダイレクトを許可しない」を有効にしてください。  
+> 内蔵カードリーダーへの通信は、`DriverHost_PX4.exe` が接続先 PC の WinUSB デバイスと直接行うため、RDP のスマートカードリダイレクトを経由しません。  
+> ただし、`WinSCard.dll` を配置していても、外付けカードリーダーを選んだ処理は Windows 標準の WinSCard API へ引き渡されます。この場合は RDP の設定に従い、接続元 PC 側のカードリーダーだけが外付けカードリーダーとして表示されることがあります。
+
+> [!WARNING]  
+> **アプリケーション側のビット数 (32bit/64bit) と `WinSCard.dll` のビット数を合わせる必要があります。**  
+> また、すでに別実装の `WinSCard.dll` を配置している場合は、元の DLL を退避してから入れ替えてください。  
+> 同じフォルダで2つの `WinSCard.dll` を併用することはできません。
+
+> [!TIP]
+> `WinSCard.dll` の追加・退避後、TVTest ではカードリーダーエラーが発生することがありますが、これは過去使っていたカードリーダーにアクセスできなくなったことによるエラーですので、異常ではありません。  
+> **「設定」→「TSプロセッサー」→「デフォルトフィルター」のセレクトボックスで利用するカードリーダー名を選択し、TVTest を再起動すると、そのカードリーダーに挿入された B-CAS カードを使ってスクランブル解除を行えます。**  
+
+> [!TIP]
+> **PC に複数のチューナーを接続している場合、TVTest では複数の内蔵カードリーダーを認識します。** B-CAS カードを挿入したチューナーの内蔵カードリーダーを選択してください。  
+> **内蔵カードリーダーを使うために、PC に接続されているすべてのチューナーに B-CAS カードを挿入する必要はありません。** 内蔵カードリーダーは、受信中チューナーと異なるデバイスでも利用できます。
+
+> [!NOTE]  
+> `WinSCard.dll` は必要に応じて同じフォルダの `DriverHost_PX4.exe` を起動し、内蔵カードリーダーとの通信を仲介します。  
+> 複数の TVTest や EDCB プロセスが同じカードへ接続した場合も、APDU と PC/SC トランザクションはカード単位で直列に処理されます。
 
 ## インストール (Linux)
 
@@ -151,17 +212,17 @@ BonDriver と同じフォルダに DriverHost_PX4.exe / DriverHost_PX4.ini / it9
 Debian パッケージを使用してインストールすると依存パッケージも自動インストールされるほか、DKMS のソースコード管理も透過的に行われます。  
 Ubuntu / Debian 環境では Debian パッケージを使用してインストールすることを強く推奨します。
 
-	$ wget https://github.com/tsukumijima/px4_drv/releases/download/v0.5.2/px4-drv-dkms_0.5.2_all.deb
-	$ sudo apt install -y ./px4-drv-dkms_0.5.2_all.deb
+	$ wget https://github.com/tsukumijima/px4_drv/releases/download/v0.6.0/px4-drv-dkms_0.6.0_all.deb
+	$ sudo apt install -y ./px4-drv-dkms_0.6.0_all.deb
 
 上記コマンドで、px4_drv の Debian パッケージをインストールできます。
 
 > [!TIP]
 手動で Debian パッケージを生成することもできます。  
-> `./build_deb.sh` を実行すると、`./build_deb.sh` の一つ上層のディレクトリに `px4-drv-dkms_0.5.2_all.deb` という名前の Debian パッケージが生成されます。  
+> `./build_deb.sh` を実行すると、`./build_deb.sh` の一つ上層のディレクトリに `px4-drv-dkms_0.6.0_all.deb` という名前の Debian パッケージが生成されます。  
 > ```
 > $ ./build_deb.sh
-> $ sudo apt install -y ../px4-drv-dkms_0.5.2_all.deb
+> $ sudo apt install -y ../px4-drv-dkms_0.6.0_all.deb
 > ```
 > 上記コマンドで、生成した px4_drv の Debian パッケージをインストールできます。
 
@@ -169,9 +230,9 @@ Ubuntu / Debian 環境では Debian パッケージを使用してインスト�
 
 gcc, make, カーネルソース/ヘッダ, dkms がインストールされている必要があります。
 
-	$ sudo cp -a ./ /usr/src/px4_drv-0.5.2
-	$ sudo dkms add px4_drv/0.5.2
-	$ sudo dkms install px4_drv/0.5.2
+	$ sudo cp -a ./ /usr/src/px4_drv-0.6.0
+	$ sudo dkms add px4_drv/0.6.0
+	$ sudo dkms install px4_drv/0.6.0
 
 #### DKMS を使用せずにインストールする
 
@@ -227,7 +288,7 @@ gcc, make, カーネルソース/ヘッダ, dkms がインストールされて�
 
 チューナーは、`px4video0` から ISDB-S, ISDB-S, ISDB-T, ISDB-T, ISDB-S, ISDB-S, ISDB-T, ISDB-T というように、S と T が2つずつ交互に割り当てられます。
 
-##### PLEX PX-MLT5PE を接続した場合
+##### PLEX PX-MLT5PE / e-Better DTV02A-5TS-P を接続した場合
 
 	$ ls /dev/pxmlt5video*
 	/dev/pxmlt5video0  /dev/pxmlt5video2  /dev/pxmlt5video4
@@ -258,6 +319,13 @@ gcc, make, カーネルソース/ヘッダ, dkms がインストールされて�
 
 すべてのチューナーにおいて、ISDB-T のみ受信可能です。
 
+##### e-Better DTV03A-1TU を接続した場合
+
+	$ ls /dev/isdbt2071video*
+	/dev/isdbt2071video0
+
+すべてのチューナーにおいて、ISDB-T のみ受信可能です。
+
 ##### e-Better DTV02-1T1S-U/DTV02A-1T1S-U を接続した場合
 
 	$ ls /dev/isdb2056video*
@@ -266,7 +334,7 @@ gcc, make, カーネルソース/ヘッダ, dkms がインストールされて�
 すべてのチューナーにおいて、ISDB-T と ISDB-S のどちらも受信可能です。
 
 > [!NOTE]  
-> ロット番号 2309 以降の DTV02A-1T1S-U を接続した場合も、デバイスファイル名は `/dev/isdb2056video*` となります。  
+> ロット番号 2309 以降の DTV02A-1T1S-U を接続した場合でも、デバイスファイル名は `/dev/isdb2056video*` となります。  
 > `/dev/isdb2056nvideo*` ではないので注意してください。
 
 ##### e-Better DTV02A-4TS-P を接続した場合
@@ -298,8 +366,8 @@ gcc, make, カーネルソース/ヘッダ, dkms がインストールされて�
 
 #### DKMS を使用してインストールした場合
 
-	$ sudo dkms remove px4_drv/0.5.2 --all
-	$ sudo rm -rf /usr/src/px4_drv-0.5.2
+	$ sudo dkms remove px4_drv/0.6.0 --all
+	$ sudo rm -rf /usr/src/px4_drv-0.6.0
 
 #### DKMS を使用せずにインストールした場合
 
@@ -348,7 +416,7 @@ Windows では、BonDriver_PX4-S.ini に記載の `LNBPower=0` を `LNBPower=1` 
 
 対応していないものとされていましたが、5ch の有志により、正しく LNB 電源を出力できることが確認されています ([参考](https://mevius.5ch.net/test/read.cgi/avi/1648542476/267-288))。
 
-### e-Better DTV02-1T1S-U/DTV02A-1T1S-U
+### PLEX PX-M1UR / e-Better DTV02-1T1S-U/DTV02A-1T1S-U
 
 対応しておりません。
 
@@ -356,12 +424,15 @@ Windows では、BonDriver_PX4-S.ini に記載の `LNBPower=0` を `LNBPower=1` 
 
 対応していると思われます。
 
+### e-Better DTV02A-5TS-P
+
+ハードウェア上 PX-MLT5PE と同一機種であることから、LNB 電源の動作も PX-MLT5PE と共通です。
+
 ## 備考
 
 ### 内蔵カードリーダーやリモコンについて
 
-このドライバは、各種対応デバイスに内蔵されているカードリーダーやリモコンの操作には対応していません。  
-また、今後対応を行う予定もありません。ご了承ください。
+WinUSB 版は、各種対応デバイスに内蔵されているカードリーダーを利用できます。Linux 版とリモコンの操作には対応していません。
 
 ### e-Better DTV02-1T1S-U について
 
@@ -370,13 +441,13 @@ e-Better DTV02-1T1S-U は、個体によりデバイスからの応答が無く�
 
 ### e-Better DTV02A-1T1S-U について
 
-e-better DTV02A-1T1S-U は、DTV02-1T1S-U に存在した上記の不具合がハードウェアレベルで修正されています。そのため、このドライバでは「正式な対応」とさせていただいております。
+e-Better DTV02A-1T1S-U は、DTV02-1T1S-U に存在した上記の不具合がハードウェアレベルで修正されています。そのため、このドライバでは「正式な対応」とさせていただいております。
 
 ## 技術情報
 
 ### デバイスの構成
 
-PX-W3PE4/Q3PE4/MLT5PE/MLT8PE, e-Better DTV02A-4TS-P は、電源の供給を PCIe スロットから受け、データのやり取りを USB を介して行います。  
+PX-W3PE4/Q3PE4/MLT5PE/MLT8PE, e-Better DTV02A-4TS-P/DTV02A-5TS-P は、電源の供給を PCIe スロットから受け、データのやり取りを USB を介して行います。  
 PX-W3PE5/Q3PE5 は、PX-W3PE4/Q3PE4 相当の基板に PCIe→USB ブリッジチップを追加し、USB ケーブルを不要とした構造となっています。  
 PX-Q3U4/Q3PE4 は、PX-W3U4/W3PE4 相当のデバイスが USB ハブを介して2つぶら下がる構造となっています。
 
@@ -412,7 +483,7 @@ PX-Q3U4/Q3PE4 は、PX-W3U4/W3PE4 相当のデバイスが USB ハブを介し�
 
 PX-MLT8PE は、同一基板上に PX-MLT5PE 相当のデバイスと、3チャンネル分のチューナーを持つデバイスが実装されている構造となっています。
 
-- PX-MLT5PE/MLT8PE5
+- PX-MLT5PE/MLT8PE5 / DTV02A-5TS-P
 
 	- USB Bridge: ITE IT9305E
 	- ISDB-T/S Demodulator: Sony CXD2856ER (x5)
