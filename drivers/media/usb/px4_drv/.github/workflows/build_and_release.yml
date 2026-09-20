@@ -3,28 +3,48 @@ name: Build and Release Debian Package
 on:
   push:
     tags:
-      - '*'
+      - "*"
 
 jobs:
-
   build_and_release:
     name: Build and Release Debian Package
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
+    container:
+      image: ubuntu:20.04
     permissions:
       contents: write
     steps:
-
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Install DKMS
-        run: sudo apt-get install -y debhelper devscripts dh-exec dkms dpkg
+        run: apt-get update && apt-get install -y -q --no-install-recommends debhelper devscripts dh-exec dkms dpkg
+        shell: bash
+        env:
+          DEBIAN_FRONTEND: noninteractive
 
       - name: Build Debian package
         run: dkms mkdeb --source-only
+        shell: bash
+
+      - name: Check artifacts
+        run: ls -l ../*.deb
+        shell: bash
+
+      - name: Check install
+        run: dpkg -i $(ls -1 ../*.deb | head -n 1)
+        shell: bash
+
+      - name: Check dkms install
+        run: apt-get install -y linux-headers-virtual
+        shell: bash
+
+      - name: Check dkms result
+        run: ls -l /lib/modules/*/updates/dkms/px4_drv.ko*
+        shell: bash
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
           files: |

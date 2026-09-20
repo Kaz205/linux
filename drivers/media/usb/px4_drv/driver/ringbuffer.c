@@ -215,7 +215,8 @@ int ringbuffer_read_user(struct ringbuffer *ringbuf,
 		}
 
 		atomic_xchg(&ringbuf->head, head);
-		atomic_sub(read_size, &ringbuf->actual_size);
+		atomic_sub_return_release(read_size,
+					  &ringbuf->actual_size);
 	}
 
 	if (unlikely(!atomic_sub_return(1, &ringbuf->rw_count) &&
@@ -260,7 +261,8 @@ int ringbuffer_write_atomic(struct ringbuffer *ringbuf,
 		}
 
 		atomic_xchg(&ringbuf->tail, tail);
-		atomic_add(write_size, &ringbuf->actual_size);
+		atomic_add_return_release(write_size,
+					  &ringbuf->actual_size);
 	}
 
 	if (unlikely(!atomic_sub_return(1, &ringbuf->rw_count) &&
