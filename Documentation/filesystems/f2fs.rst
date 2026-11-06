@@ -318,6 +318,8 @@ compress_algorithm=%s:%d Control compress algorithm and its compress level, now,
 				 zstd           1 - 22
 				 =========      ===========
 
+			 lz4 levels above 9 compress as level 9.
+
 compress_log_size=%u	 Support configuring compress cluster size. The size will
 			 be 4KB * (1 << %u). The default and minimum sizes are 16KB.
 compress_extension=%s	 Support adding specified extension, so that f2fs can enable
