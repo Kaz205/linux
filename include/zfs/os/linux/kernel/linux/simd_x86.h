@@ -315,24 +315,24 @@ kfpu_begin(void)
 	 */
 	uint8_t *state = zfs_kfpu_fpregs[smp_processor_id()];
 #if defined(HAVE_XSAVES)
-	if (static_cpu_has(X86_FEATURE_XSAVES)) {
+	if (cpu_feature_enabled(X86_FEATURE_XSAVES)) {
 		kfpu_do_xsave("xsaves", state, ~XFEATURE_MASK_XTILE);
 		return;
 	}
 #endif
 #if defined(HAVE_XSAVEOPT)
-	if (static_cpu_has(X86_FEATURE_XSAVEOPT)) {
+	if (cpu_feature_enabled(X86_FEATURE_XSAVEOPT)) {
 		kfpu_do_xsave("xsaveopt", state, ~XFEATURE_MASK_XTILE);
 		return;
 	}
 #endif
 #if defined(HAVE_XSAVE)
-	if (static_cpu_has(X86_FEATURE_XSAVE)) {
+	if (cpu_feature_enabled(X86_FEATURE_XSAVE)) {
 		kfpu_do_xsave("xsave", state, ~XFEATURE_MASK_XTILE);
 		return;
 	}
 #endif
-	if (static_cpu_has(X86_FEATURE_FXSR)) {
+	if (cpu_feature_enabled(X86_FEATURE_FXSR)) {
 		kfpu_save_fxsr(state);
 	} else {
 		kfpu_save_fsave(state);
@@ -359,7 +359,7 @@ kfpu_restore_fxsr(uint8_t *addr)
 	 * restores the _x87 FOP, FIP, and FDP registers when an exception
 	 * is pending.  Clean the _x87 state to force the restore.
 	 */
-	if (unlikely(static_cpu_has_bug(X86_BUG_FXSAVE_LEAK)))
+	if (unlikely(cpu_feature_enabled_bug(X86_BUG_FXSAVE_LEAK)))
 		kfpu_fxsr_clean(addr);
 
 	if (IS_ENABLED(CONFIG_X86_32)) {
@@ -380,18 +380,18 @@ kfpu_end(void)
 {
 	uint8_t  *state = zfs_kfpu_fpregs[smp_processor_id()];
 #if defined(HAVE_XSAVES)
-	if (static_cpu_has(X86_FEATURE_XSAVES)) {
+	if (cpu_feature_enabled(X86_FEATURE_XSAVES)) {
 		kfpu_do_xrstor("xrstors", state, ~XFEATURE_MASK_XTILE);
 		goto out;
 	}
 #endif
 #if defined(HAVE_XSAVE)
-	if (static_cpu_has(X86_FEATURE_XSAVE)) {
+	if (cpu_feature_enabled(X86_FEATURE_XSAVE)) {
 		kfpu_do_xrstor("xrstor", state, ~XFEATURE_MASK_XTILE);
 		goto out;
 	}
 #endif
-	if (static_cpu_has(X86_FEATURE_FXSR)) {
+	if (cpu_feature_enabled(X86_FEATURE_FXSR)) {
 		kfpu_restore_fxsr(state);
 	} else {
 		kfpu_restore_fsave(state);
