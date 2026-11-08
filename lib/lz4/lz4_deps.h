@@ -42,6 +42,9 @@
 #define LZ4_HEAPMODE 1
 #define LZ4HC_HEAPMODE 1
 
+#define LZ4_FORCE_INLINE static __always_inline
+#define LZ4_FORCE_NOINLINE static noinline
+
 /* Failing stubs; nothing in the kernel reaches these. */
 static void *LZ4_malloc(size_t s) { return NULL; }
 static void *LZ4_calloc(size_t n, size_t s) { return NULL; }
