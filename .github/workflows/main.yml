@@ -39,7 +39,7 @@ jobs:
             pacman-key --init && \
             pacman -Sy archlinux-keyring --noconfirm && \
             pacman -Su --noconfirm && \
-            pacman -q --noconfirm -S expect git bc cpio pahole python wget libxml2-legacy && \
+            pacman -q --noconfirm -S expect git bc cpio pahole python wget libxml2-legacy rust rust-src rust-bindgen && \
             rm -rf /var/cache/pacman/pkg/* && \
             ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
             useradd -g users -m builduser && \
@@ -101,7 +101,7 @@ jobs:
             pacman-key --init && \
             pacman -Sy archlinux-keyring --noconfirm && \
             pacman -Su --noconfirm && \
-            pacman -q --noconfirm -S expect git bc cpio pahole python wget libxml2-legacy && \
+            pacman -q --noconfirm -S expect git bc cpio pahole python wget libxml2-legacy rust rust-src rust-bindgen && \
             rm -rf /var/cache/pacman/pkg/* && \
             ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
             useradd -g users -m builduser && \
