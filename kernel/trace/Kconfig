@@ -873,6 +873,14 @@ config BPF_EVENTS
 	  This allows the user to attach BPF programs to kprobe, uprobe, and
 	  tracepoint events.
 
+config BPF_EVENTS_ONLY
+	bool "Enable bpf events only"
+	depends on !FTRACE
+	select TRACEPOINTS
+	select BPF_EVENTS
+	help
+	  Enable bpf events without the ftrace code. Breaks tracepoints.
+
 if FTRACE
 
 config DYNAMIC_EVENTS

@@ -15,7 +15,7 @@ macro_rules! declare_trace {
         $( #[$attr] )*
         #[inline(always)]
         $pub unsafe fn $name($($argname : $argtyp),*) {
-            #[cfg(CONFIG_TRACEPOINTS)]
+            #[cfg(all(CONFIG_TRACEPOINTS, not(CONFIG_BPF_EVENTS_ONLY)))]
             {
                 // SAFETY: It's always okay to query the static key for a tracepoint.
                 let should_trace = unsafe {
@@ -36,7 +36,7 @@ macro_rules! declare_trace {
                 }
             }
 
-            #[cfg(not(CONFIG_TRACEPOINTS))]
+            #[cfg(any(not(CONFIG_TRACEPOINTS), CONFIG_BPF_EVENTS_ONLY))]
             {
                 // If tracepoints are disabled, insert a trivial use of each argument
                 // to avoid unused argument warnings.

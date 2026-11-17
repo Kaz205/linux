@@ -59,16 +59,6 @@ static void create_mad_addr_info(struct ib_mad_send_wr_private *mad_send_wr,
 			  struct ib_mad_qp_info *qp_info,
 			  struct trace_event_raw_ib_mad_send_template *entry)
 {
-	struct ib_ud_wr *wr = &mad_send_wr->send_wr;
-	struct rdma_ah_attr attr = {};
-
-	rdma_query_ah(wr->ah, &attr);
-
-	/* These are common */
-	entry->sl = attr.sl;
-	entry->rqpn = wr->remote_qpn;
-	entry->rqkey = wr->remote_qkey;
-	entry->dlid = rdma_ah_get_dlid(&attr);
 }
 #endif
 
